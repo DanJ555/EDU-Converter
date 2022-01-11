@@ -1,6 +1,4 @@
 
-
-
 class unit:
 	
 	def __init__(self):
@@ -381,6 +379,14 @@ class unit:
 #		for i in self.raw:
 #			print(i)
 		return r
+
+	def disableSecWeapon(self):
+		self.stat_sec["attack"] = 0
+		self.stat_sec["charge_bonus"] = 0
+		self.stat_sec["missile"] = None
+		self.stat_sec["range"] = 0
+		self.stat_sec["ammunition"] = 0
+		self.stat_sec["weapon_type"] = None
 	
 	def fillInFromList(self,statlist):
 		self.raw=statlist
@@ -404,7 +410,7 @@ class unit:
 						name = ''
 						for p in dic[2:]:
 							name+=f"{p} "
-						self.dictionary["name1"] = name
+						self.dictionary["name1"] = name[:-1]
 					except KeyError:
 						pass
 				case ["category",cat]:
