@@ -34,30 +34,30 @@ class unit:
 			"sea_faring": 0,
 			"can_swim": 0,
 			"hide_forest": 0,
-			"hide_forrest_improved": 0,
+			"hide_improved_forest": 0,
 			"hide_anywhere": 0,
 			"frighten_foot": 0,
 			"frighten_mounted": 0,
 			"can_run_amok": 0,
-			"general_unit": 0,
-			"cantabrian_circle": 0,
-			"no_custom": 0,
 			"command": 0,
-			"mercenary_unit": 0,
-			"is_peasant": 0,
 			"druid": 0,
 			"power_charge": 0,
-			"free_upkeep_unit": 0,
-			"can_withdraw": 0,
 			"hardy": 0,
 			"very_hardy": 0,
+			"can_withdraw": 0,
+			"is_peasant": 0,
+			"general_unit": 0,
 			"can_formed_charge": 0,
+			"cantabrian_circle": 0,
+			"mercenary_unit": 0,
 			"knight": 0,
 			"gunpowder_unit": 0,
-			"start_not_skirmishing": 0,
+			"free_upkeep_unit": 0,
 			"stakes": 0,
 			"fire_by_rank": 0,
-			"cannot_skirmish": 0}
+			"start_not_skirmishing": 0,
+			"cannot_skirmish": 0,
+			"no_custom": 0}
 		self.move_speed_mod = None
 		self.formation = {
 			"close_x": 1.2,
@@ -254,9 +254,12 @@ class unit:
 		if self.mount != None:
 			lines.append(f"mount{' '*12}{self.mount}")
 		me = ''
+		prefix = ''
 		for k in self.mount_effect.keys():
 			if self.mount_effect[k] != None:
-				me+=(f"{k} {self.mount_effect[k]}, ")
+				if self.mount_effect[k] > 0:
+					prefix = "+"
+				me+=(f"{k} {prefix}{self.mount_effect[k]}, ")
 		if me != '':
 			lines.append(f"mount_effect     {me[:-2]}")
 		at = ''
@@ -312,6 +315,7 @@ class unit:
 					elif stat[2][k] == 1:
 						sp+=f"{k}, "
 			if sp == '': sp = "no"
+			if sp[-2:] == ', ': sp = sp[:-2]
 			lines.append(f"stat_{pre[i]}_attr    {sp}")
 			i+=1
 		pa = ''
@@ -447,7 +451,7 @@ class unit:
 					r = ''
 					for p in m:
 						r+=f"{p} "
-					self.mount=r
+					self.mount=r[:-1]
 				case ["mount_effect",*effects]:
 					pairs = []
 					for i, e in enumerate(effects):
@@ -650,7 +654,7 @@ def main():
 	with open("export_descr_unit(TEST).txt","w") as test:
 		for u in units:
 			test.write(u.__str__())
-			test.write("\n\n")
+			test.write(" \n \n")
 
 	
 if __name__ == "__main__":
