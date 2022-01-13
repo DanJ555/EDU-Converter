@@ -26,29 +26,29 @@ class Unit:
         self.mounted_engine = None
         self.mount = None
         self.mount_effect = {
-            "horse": None,
             "elephant": None,
-            "camel": None}
+            "camel": None,
+            "horse": None}
         self.attributes = {
             "sea_faring": 0,
             "can_swim": 0,
             "hide_forest": 0,
             "hide_improved_forest": 0,
             "hide_anywhere": 0,
-            "frighten_foot": 0,
-            "frighten_mounted": 0,
-            "can_run_amok": 0,
             "command": 0,
             "druid": 0,
             "power_charge": 0,
             "hardy": 0,
             "very_hardy": 0,
             "can_withdraw": 0,
-            "is_peasant": 0,
+            "can_run_amok": 0,
+            "frighten_foot": 0,
+            "frighten_mounted": 0,
             "general_unit": 0,
             "can_formed_charge": 0,
             "cantabrian_circle": 0,
             "mercenary_unit": 0,
+            "is_peasant": 0,
             "knight": 0,
             "gunpowder_unit": 0,
             "free_upkeep_unit": 0,
@@ -85,7 +85,7 @@ class Unit:
             "db_vs_mount": 0,
             "ap": 0}
         self.stat_pri_attr = {
-            "ap": 0,
+            "area": 0,
             "bp": 0,
             "spear": 0,
             "long_pike": 0,
@@ -93,7 +93,7 @@ class Unit:
             "prec": 0,
             "thrown": 0,
             "launching": 0,
-            "area": 0,
+            "ap": 0,
             "spear_bonus_x": 0}
         self.stat_sec = {
             "attack": 0,
@@ -113,7 +113,7 @@ class Unit:
             "db_vs_mount": 0,
             "ap": 0}
         self.stat_sec_attr = {
-            "ap": 0,
+            "area": 0,
             "bp": 0,
             "spear": 0,
             "long_pike": 0,
@@ -121,7 +121,7 @@ class Unit:
             "prec": 0,
             "thrown": 0,
             "launching": 0,
-            "area": 0,
+            "ap": 0,
             "spear_bonus_x": 0}
         self.stat_ter = {
             "attack": None,
@@ -141,7 +141,7 @@ class Unit:
             "db_vs_mount": 0,
             "ap": 0}
         self.stat_ter_attr = {
-            "ap": 0,
+            "area": 0,
             "bp": 0,
             "spear": 0,
             "long_pike": 0,
@@ -149,7 +149,7 @@ class Unit:
             "prec": 0,
             "thrown": 0,
             "launching": 0,
-            "area": 0,
+            "ap": 0,
             "spear_bonus_x": 0}
         self.stat_pri_armour = {
             "armour": 0,
@@ -255,12 +255,9 @@ class Unit:
         if self.mount is not None:
             lines.append(f"mount{' ' * 12}{self.mount}")
         me = ''
-        prefix = ''
         for k in self.mount_effect.keys():
             if self.mount_effect[k] is not None:
-                if self.mount_effect[k] > 0:
-                    prefix = "+"
-                me += f"{k} {prefix}{self.mount_effect[k]}, "
+                me += f"{k} {self.mount_effect[k]}, "
         if me != '':
             lines.append(f"mount_effect     {me[:-2]}")
         at = ''
@@ -392,16 +389,16 @@ class Unit:
         self.stat_sec["ammunition"] = 0
         self.stat_sec["weapon_type"] = None
 
-    def fillInFromList(self, statlist):
-        self.raw = statlist
-        for i, line in enumerate(statlist):
+    def fillInFromList(self, stat_list):
+        self.raw = stat_list
+        for i, line in enumerate(stat_list):
             try:
                 if ';' in line[0]:
                     self.commented_out.append(i)
-                    statlist[i][0] = line[0][1:]
+                    stat_list[i][0] = line[0][1:]
             except IndexError:
                 pass
-        for line in statlist:
+        for line in stat_list:
             match line:
                 case ["type", *t]:
                     name = ''
@@ -459,7 +456,7 @@ class Unit:
                 case ["mount_effect", *effects]:
                     for i, e in enumerate(effects):
                         if i % 2 == 0:
-                            self.mount_effect[e] = int(effects[i + 1])
+                            self.mount_effect[e] = effects[i + 1]
                 case ["attributes", *attr]:
                     for i, a in enumerate(attr):
                         self.attributes[a] = 1
@@ -584,6 +581,7 @@ class Unit:
                     self.stat_ground["scrub"] = sg[0]
                     self.stat_ground["sand"] = sg[1]
                     self.stat_ground["forest"] = sg[2]
+
                     self.stat_ground["snow"] = sg[3]
                 case ["stat_mental", *sm]:
                     self.stat_mental["morale"] = sm[0]
