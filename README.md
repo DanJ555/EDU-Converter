@@ -1,6 +1,6 @@
 # Medieval2-EDU-Editor
 A simple python script that can read and write. Very barebones for now, will just read and write a new file.
-Edit main() to create any mass changes desired. Plans for a shell and GUI coming soon (tm) and making it work for RTW and it's remaster.
+Edit main() to create any mass changes desired. Plans for a shell and GUI coming soon (tm) and making it work for RTW and its remaster.
 
 *************
 KNOWN ISSUES
