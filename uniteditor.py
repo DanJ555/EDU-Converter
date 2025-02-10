@@ -577,13 +577,13 @@ def main():
 						line[c] = word[:-1]
 				u.append(line)
 			raw_units.append(u)
-	for ru in raw_units:
-		u = Unit()
-		u.fillInFromList(ru)
-		units.append(u)
+	for raw_unit in raw_units:
+		unit = Unit()
+		unit.fillInFromList(raw_unit)
+		units.append(unit)
 	with open("Modified_EDU", "w") as mod:
-		for u in units:
-			mod.write(u.__str__())
+		for unit in units:
+			mod.write(str(unit))
 			mod.write(" \n \n")
 
 
