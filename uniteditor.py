@@ -280,6 +280,8 @@ class Unit:
 				for v in era[1]:
 					e += f"{v}, "
 				lines.append(f"{era[0]}{' '*12}{e[:-2]}")
+		if self.recruit_priority_offset is not None:
+			lines.append(f"recruit_priority_offset    {self.recruit_priority_offset}")
 		# No longer supporting commenting out lines of unit stats.
 		# Was mostly just lines that don't do anything even uncommented
 		# since they no longer had a function in the game. And if you don't
@@ -509,8 +511,8 @@ class Unit:
 					self.eras[f"era {num}"] = []
 					for f in o:
 						self.eras[f"era {num}"].append(f)
-				case ["recruit_priority_offset", o]:
-					self.recruit_priority_offset = o
+				case ["recruit_priority_offset", offset]:
+					self.recruit_priority_offset = offset
 
 
 class TooManyOfficersError(Exception):
@@ -518,20 +520,23 @@ class TooManyOfficersError(Exception):
 	pass
 
 
-def main():
-	edu = open("export_descr_unit(SS6.4).txt", encoding="ISO-8859-1")
+def create_unit_list(file="export_descr_unit(SS6.4).txt") -> list[Unit]:
+	edu = open(file, encoding="ISO-8859-1")
 	lines = edu.readlines()
+	edu.close()
 	# Makes instances of missing spaces between commas separated
 	# values not crash the program.
+	unit_starts = []
 	for line_index, line in enumerate(lines):
 		for char_index, char in enumerate(line):
 			if char == "," and line[char_index+1] != " ":
 				lines[line_index] = f"{line[:char_index+1]} {line[char_index+1:]}"
-	edu.close()
-	unit_starts = []
+		if line[:4] == "type":
+			unit_starts.append(line_index)
+	'''unit_starts = []
 	for i, line in enumerate(lines):
 		if line[:4] == "type":
-			unit_starts.append(i)
+			unit_starts.append(i)'''
 	units = []
 	raw_units = []
 	for start in range(len(unit_starts)):
@@ -541,18 +546,27 @@ def main():
 		except IndexError:
 			interval = (unit_starts[start], None)
 		finally:
-			u = []
-			for i, l in enumerate(lines[interval[0]:interval[1]]):
-				line = l.split()
-				for c, word in enumerate(line):
+			unit = []
+			for line in lines[interval[0]:interval[1]]:
+				line = line.split()
+				for index, word in enumerate(line):
 					if word[-1] == ',':
-						line[c] = word[:-1]
-				u.append(line)
-			raw_units.append(u)
+						line[index] = word[:-1]
+				unit.append(line)
+			raw_units.append(unit)
 	for raw_unit in raw_units:
 		unit = Unit()
 		unit.fill_from_list(raw_unit)
 		units.append(unit)
+	'''with open("Modified_EDU", "w") as mod:
+		for unit in units:
+			mod.write(str(unit))
+			mod.write(" \n \n")'''
+	return units
+
+
+def main():
+	units = create_unit_list()
 	with open("Modified_EDU", "w") as mod:
 		for unit in units:
 			mod.write(str(unit))
