@@ -5,7 +5,7 @@ from uniteditor import *
 
 
 # Function to initialize the SQLite database
-def initialize_database(db_name="export_descr_units.db"):
+def initialize_database(db_name="test.db"):
     conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
 
@@ -13,7 +13,8 @@ def initialize_database(db_name="export_descr_units.db"):
     cursor.executescript("""
     CREATE TABLE IF NOT EXISTS units (
         unit_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        unit_dictionary TEXT UNIQUE NOT NULL,
+        dictionary TEXT UNIQUE NOT NULL,
+        type TEXT,
         name TEXT,
         category TEXT,
         class TEXT,
@@ -22,19 +23,41 @@ def initialize_database(db_name="export_descr_units.db"):
         banner_faction TEXT,
         banner_holy TEXT,
         banner_unit TEXT,
-        ship TEXT,
-        engine TEXT,
-        animal TEXT,
-        mounted_engine TEXT,
-        mount TEXT,
         attributes TEXT,
-        move_speed_mod REAL,
+        stat_cost_turns INTEGER,
+        stat_cost_construct INTEGER,
+        stat_cost_upkeep INTEGER,
+        stat_cost_weapon_upgrade INTEGER,
+        stat_cost_armor_upgrade INTEGER,
+        stat_cost_custom INTEGER,
+        stat_cost_custom_softcap INTEGER,
+        stat_cost_custom_penalty INTEGER,
+        stat_stl INTEGER,
         ownership TEXT,
+        era_0 TEXT,
+        era_1 TEXT,
+        era_2 TEXT,
         recruit_priority_offset INTEGER
     );
 
     CREATE TABLE IF NOT EXISTS formations (
         unit_id INTEGER PRIMARY KEY,
+        dictionary TEXT UNIQUE NOT NULL,
+        soldier_model TEXT,
+        soldier_count INTEGER,
+        soldier_extras REAL,
+        soldier_collision_mass REAL,
+        officer_0 TEXT,
+        officer_1 TEXT,
+        officer_2 TEXT,
+        ship TEXT,
+        engine TEXT,
+        animal TEXT,
+        mounted_engine TEXT,
+        mount TEXT,
+        mount_effect_0 TEXT,
+        mount_effect_1 TEXT,
+        mount_effect_2 TEXT,
         close_x REAL,
         close_y REAL,
         loose_x REAL,
@@ -42,61 +65,77 @@ def initialize_database(db_name="export_descr_units.db"):
         ranks INTEGER,
         shape TEXT,
         ability TEXT,
-        stat_health TEXT,
+        stat_health_0 INTEGER,
+        stat_health_1 INTEGER,
         stat_heat INTEGER,
-        stat_ground TEXT,
-        stat_mental TEXT,
-        stat_charge_dist INTEGER,
+        stat_ground_scrub INTEGER,
+        stat_ground_sand INTEGER,
+        stat_ground_forest INTEGER,
+        stat_ground_snow INTEGER,
+        stat_mental_morale INTEGER,
+        stat_mental_discipline TEXT,
+        stat_mental_training TEXT,
+        stat_mental_lock_morale TEXT,
+        stat_charge_distance INTEGER,
+        stat_fire_delay INTEGER,
+        move_speed_mod REAL,
         FOREIGN KEY (unit_id) REFERENCES units (unit_id)
     );
 
     CREATE TABLE IF NOT EXISTS weapons (
         weapon_id INTEGER PRIMARY KEY AUTOINCREMENT,
         unit_id INTEGER,
-        weapon_type TEXT,
+        dictionary TEXT,
+        weapon_category TEXT,
         attack INTEGER,
         charge_bonus INTEGER,
         missile TEXT,
         range INTEGER,
         ammunition INTEGER,
-        weapon_class TEXT,
+        weapon_type TEXT,
         tech_type TEXT,
         damage_type TEXT,
         sound TEXT,
+        musket_shot_set TEXT,
         attack_delay INTEGER,
         scfim INTEGER,
-        stat_ex TEXT,
-        stat_attr TEXT,
+        attribute TEXT,
         FOREIGN KEY (unit_id) REFERENCES units (unit_id)
     );
 
     CREATE TABLE IF NOT EXISTS armor (
         unit_id INTEGER PRIMARY KEY,
+        dictionary TEXT,
         primary_armor INTEGER,
-        defense_skill INTEGER,
-        shield INTEGER,
-        armor_material TEXT,
+        primary_defense_skill INTEGER,
+        primary_shield INTEGER,
+        primary_material TEXT,
+        secondary_armor INTEGER,
+        secondary_defense_skill INTEGER,
+        secondary_material TEXT,
         upgrade_levels TEXT,
         upgrade_models TEXT,
-        FOREIGN KEY (unit_id) REFERENCES units (unit_id)
-    );
-
-    CREATE TABLE IF NOT EXISTS cost (
-        unit_id INTEGER PRIMARY KEY,
-        turns INTEGER,
-        construct INTEGER,
-        upkeep INTEGER,
-        weapon_upgrade INTEGER,
-        armor_upgrade INTEGER,
-        custom INTEGER,
-        custom_softcap INTEGER,
-        custom_penalty INTEGER,
         FOREIGN KEY (unit_id) REFERENCES units (unit_id)
     );
     """)
 
     conn.commit()
     conn.close()
+
+
+def str_join(collection: list) -> str | None:
+    try:
+        return ", ".join(collection)
+    except TypeError:
+        return None
+
+
+def dict_pair(dictionary: dict, index: int) -> str | None:
+    temp = list(dictionary.items())
+    try:
+        return f"{temp[index][0]} {temp[index][1]}"
+    except IndexError:
+        return None
 
 
 # Function to insert unit data into the database
@@ -106,12 +145,15 @@ def insert_unit(conn, unit):
     # Insert into units table
     cursor.execute("""
         INSERT INTO units (
-            unit_dictionary, name, category, class, voice_type, accent, banner_faction, 
-            banner_holy, banner_unit, ship, engine, animal, mounted_engine, mount, 
-            attributes, move_speed_mod, ownership, recruit_priority_offset
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            dictionary, type, name, category, class, voice_type, accent, banner_faction, 
+            banner_holy, banner_unit, attributes, stat_cost_turns, stat_cost_construct,
+            stat_cost_upkeep, stat_cost_weapon_upgrade, stat_cost_armor_upgrade,
+            stat_cost_custom, stat_cost_custom_softcap, stat_cost_custom_penalty,
+            stat_stl, ownership, era_0, era_1, era_2, recruit_priority_offset
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         unit.dictionary["name0"],
+        unit.type,
         unit.dictionary["name1"],
         unit.category,
         unit.unit_class,
@@ -126,8 +168,18 @@ def insert_unit(conn, unit):
         unit.mounted_engine,
         unit.mount,
         ", ".join(unit.attributes.keys()),  # Convert attributes dictionary to a comma-separated string
-        unit.move_speed_mod,
+        unit.stat_cost["turns"],
+        unit.stat_cost["construct"],
+        unit.stat_cost["upkeep"],
+        unit.stat_cost["weapon_ug"],
+        unit.stat_cost["armour_ug"],
+        unit.stat_cost["custom"],
+        unit.stat_cost["custom_softcap"],
+        unit.stat_cost["custom_penalty"],
         ", ".join(unit.ownership),  # Convert ownership list to a comma-separated string
+        str_join(unit.eras["era 0"]),
+        str_join(unit.eras["era 1"]),
+        str_join(unit.eras["era 2"]),
         unit.recruit_priority_offset
     ))
 
@@ -136,11 +188,34 @@ def insert_unit(conn, unit):
     # Insert into formations table
     cursor.execute("""
         INSERT INTO formations (
-            unit_id, close_x, close_y, loose_x, loose_y, ranks, shape, ability, 
-            stat_health, stat_heat, stat_ground, stat_mental, stat_charge_dist
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            unit_id, dictionary, soldier_model, soldier_count, soldier_extras,
+            soldier_collision_mass, officer_0, officer_1, officer_2, ship, engine,
+            animal, mounted_engine, mount, mount_effect_0, mount_effect_1, mount_effect_2,
+            close_x, close_y, loose_x, loose_y, ranks, shape, ability, stat_health_0,
+            stat_health_1, stat_heat, stat_ground_scrub, stat_ground_sand,
+            stat_ground_forest, stat_ground_snow, stat_mental_morale, stat_mental_discipline,
+            stat_mental_training, stat_mental_lock_morale, stat_charge_distance, stat_fire_delay,
+            move_speed_mod
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+         ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?')
     """, (
         unit_id,
+        unit.dictionary["name0"],
+        unit.soldier["model"],
+        unit.soldier["men"],
+        unit.soldier["extras"],
+        unit.soldier["mass"],
+        unit.officer0,
+        unit.officer1,
+        unit.officer2,
+        unit.ship,
+        unit.engine,
+        unit.animal,
+        unit.mounted_engine,
+        unit.mount,
+        dict_pair(unit.mount_effect, 0),
+        dict_pair(unit.mount_effect, 1),
+        dict_pair(unit.mount_effect, 2),
         unit.formation["close_x"],
         unit.formation["close_y"],
         unit.formation["loose_x"],
@@ -148,10 +223,17 @@ def insert_unit(conn, unit):
         unit.formation["ranks"],
         unit.formation["shape"],
         unit.formation["ability"],
-        f"{unit.stat_health[0]}, {unit.stat_health[1]}",
+        unit.stat_health[0],
+        unit.stat_health[1],
         unit.stat_heat,
-        str(unit.stat_ground),  # Convert dict to string for now
-        str(unit.stat_mental),  # Convert dict to string for now
+        dict_pair(unit.stat_ground, 0),
+        dict_pair(unit.stat_ground, 1),
+        dict_pair(unit.stat_ground, 2),
+        dict_pair(unit.stat_ground, 3),
+        dict_pair(unit.mental, 0),
+        dict_pair(unit.mental, 1),
+        dict_pair(unit.mental, 2),
+        dict_pair(unit.mental, 3),
         unit.stat_charge_dist
     ))
 
@@ -201,24 +283,6 @@ def insert_unit(conn, unit):
         str(unit.armour_ug_models)  # Convert dict to string for now
     ))
 
-    # Insert cost data
-    cursor.execute("""
-        INSERT INTO cost (
-            unit_id, turns, construct, upkeep, weapon_upgrade, armor_upgrade, 
-            custom, custom_softcap, custom_penalty
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, (
-        unit_id,
-        unit.stat_cost["turns"],
-        unit.stat_cost["construct"],
-        unit.stat_cost["upkeep"],
-        unit.stat_cost["weapon_ug"],
-        unit.stat_cost["armour_ug"],
-        unit.stat_cost["custom"],
-        unit.stat_cost["custom_softcap"],
-        unit.stat_cost["custom_penalty"]
-    ))
-
     conn.commit()
 
 
@@ -228,10 +292,10 @@ if __name__ == "__main__":
 
     # Assume `units` is a list of `Unit` objects from your parser
     units: list[Unit] = uniteditor.create_unit_list(file="export_descr_unit.txt")  # Replace with real data
-    conn = sqlite3.connect("export_descr_units.db")
+    conn = sqlite3.connect("test.db")
 
-    for unit in units:
-        insert_unit(conn, unit)
+#    for unit in units:
+#        insert_unit(conn, unit)
 
     conn.close()
     print("Database populated successfully!")
