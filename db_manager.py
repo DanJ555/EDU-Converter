@@ -131,7 +131,7 @@ def str_join(collection: list) -> str | None:
 
 
 def dict_pair(dictionary: dict, index: int) -> str | None:
-    temp = list(dictionary.items())
+    temp = tuple(dictionary.items())
     try:
         return f"{temp[index][0]} {temp[index][1]}"
     except IndexError:
@@ -238,7 +238,7 @@ def insert_unit(conn, unit):
     ))
 
     # Insert primary, secondary, and tertiary weapons
-    for weapon_type, stat in [
+    for weapon_category, stat in [
         ("primary", unit.stat_primary),
         ("secondary", unit.stat_secondary),
         ("tertiary", unit.stat_tertiary)
@@ -246,13 +246,14 @@ def insert_unit(conn, unit):
         if stat["attack"] is not None:  # Only insert if the weapon exists
             cursor.execute("""
                 INSERT INTO weapons (
-                    unit_id, weapon_type, attack, charge_bonus, missile, range, 
-                    ammunition, weapon_class, tech_type, damage_type, sound, 
-                    attack_delay, scfim, stat_attr
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    unit_id, dictionary, weapon_category, attack, charge_bonus, missile,
+                    range, ammunition, weapon_type, tech_type, damage_type, sound, 
+                    musket_shot_set, attack_delay, scfim, attribute
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?')
             """, (
                 unit_id,
-                weapon_type,
+                unit.dictionary["name0"],
+                weapon_category,
                 stat["attack"],
                 stat["charge_bonus"],
                 stat["missile"],
@@ -262,9 +263,10 @@ def insert_unit(conn, unit):
                 stat["tech_type"],
                 stat["damage_type"],
                 stat["sound"],
-                stat["atk_delay"],
+                stat["musket_shot_set"],
+                stat["attack_delay"],
                 stat["scfim"],
-                str(unit.stat_primary_attribute)  # Convert dict to string for now
+                str(unit.stat_primary_attribute.keys())  # Convert dict to string for now
             ))
 
     # Insert armor data

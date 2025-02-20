@@ -25,7 +25,7 @@ class Unit:
 		self.animal: str = None
 		self.mounted_engine: str = None
 		self.mount: str = None
-		self.mount_effect: dict[str, int] = {}
+		self.mount_effect: dict[str, str] = {}
 		self.attributes: dict[str, str] = {}
 		self.move_speed_mod: float = None
 		self.formation: [str, str | float | int] = {
@@ -47,8 +47,8 @@ class Unit:
 			"tech_type": "melee_simple",
 			"damage_type": "blunt",
 			"sound": "none",
-			"musket_shot_set": 0,
-			"atk_delay": 25,
+			"musket_shot_set": None,
+			"attack_delay": 25,
 			"scfim": 1}
 		self.stat_primary_attribute: dict[str, str] = {}
 		self.stat_secondary: dict[str, str | int | float] = {
@@ -61,8 +61,8 @@ class Unit:
 			"tech_type": "melee_simple",
 			"damage_type": "blunt",
 			"sound": "none",
-			"musket_shot_set": 0,
-			"atk_delay": 25,
+			"musket_shot_set": None,
+			"attack_delay": 25,
 			"scfim": 1}
 		self.stat_secondary_attribute: dict[str, str] = {}
 		self.stat_tertiary: dict[str, str | int | float] = {
@@ -75,8 +75,8 @@ class Unit:
 			"tech_type": "melee_simple",
 			"damage_type": "blunt",
 			"sound": "none",
-			"musket_shot_set": 0,
-			"atk_delay": 25,
+			"musket_shot_set": None,
+			"attack_delay": 25,
 			"scfim": 1}
 		self.stat_tertiary_attribute: dict[str, str] = {}
 		self.stat_primary_armour: dict[str, int | str] = {
@@ -212,14 +212,13 @@ class Unit:
 			if stat[0]["attack"] is None:
 				break
 			sp = ''
-			for k in stat[0].keys():
-				if stat[0][k] is None:
+			for key in stat[0].keys():
+				if stat[0][key] is None:
 					sp += "no, "
-				elif k == "musket_shot_set":
-					if stat[0][k]:
-						sp += f"{k}, "
+					if key == "musket_shot_set":
+						sp = sp[:-4]
 				else:
-					sp += f"{stat[0][k]}, "
+					sp += f"{stat[0][key]}, "
 			lines.append(f"stat_{pre[i]}{' '*9}{sp[:-2]}")
 			sp = ''
 			for k in stat[1].keys():
@@ -241,10 +240,10 @@ class Unit:
 			sa += f"{v}, "
 		lines.append(f"stat_sec_armour  {sa[:-2]}")
 		lines.append(f"stat_heat{' '*8}{self.stat_heat}")
-		sg = ''
+		stat_ground = ''
 		for v in self.stat_ground.values():
-			sg += f"{v}, "
-		lines.append(f"stat_ground      {sg[:-2]}")
+			stat_ground += f"{v}, "
+		lines.append(f"stat_ground      {stat_ground[:-2]}")
 		sm = ''
 		for k in self.stat_mental.keys():
 			if k == "lock_morale" and self.stat_mental[k] == 1:
@@ -397,7 +396,7 @@ class Unit:
 					self.stat_health = health
 				case ["stat_pri", *stat_primary]:
 					if "musket_shot_set" in stat_primary:
-						self.stat_primary["musket_shot_set"] = 1
+						self.stat_primary["musket_shot_set"] = "musket_shot_set"
 						stat_primary.pop(9)
 					self.stat_primary["attack"] = stat_primary[0]
 					self.stat_primary["charge_bonus"] = stat_primary[1]
@@ -408,44 +407,44 @@ class Unit:
 					self.stat_primary["tech_type"] = stat_primary[6]
 					self.stat_primary["damage_type"] = stat_primary[7]
 					self.stat_primary["sound"] = stat_primary[8]
-					self.stat_primary["atk_delay"] = stat_primary[9]
+					self.stat_primary["attack_delay"] = stat_primary[9]
 					self.stat_primary["scfim"] = stat_primary[10]
 				case ["stat_pri_attr", *stat_primary_attribute]:
 					for a in stat_primary_attribute:
 						self.stat_primary_attribute[a] = 1
-				case ["stat_sec", *sp]:
-					if "musket_shot_set" in sp:
-						self.stat_secondary["musket_shot_set"] = 1
-						sp.pop(9)
-					self.stat_secondary["attack"] = sp[0]
-					self.stat_secondary["charge_bonus"] = sp[1]
-					self.stat_secondary["missile"] = sp[2]
-					self.stat_secondary["range"] = sp[3]
-					self.stat_secondary["ammunition"] = sp[4]
-					self.stat_secondary["weapon_type"] = sp[5]
-					self.stat_secondary["tech_type"] = sp[6]
-					self.stat_secondary["damage_type"] = sp[7]
-					self.stat_secondary["sound"] = sp[8]
-					self.stat_secondary["atk_delay"] = sp[9]
-					self.stat_secondary["scfim"] = sp[10]
+				case ["stat_sec", *stat_secondary]:
+					if "musket_shot_set" in stat_secondary:
+						self.stat_secondary["musket_shot_set"] = "musket_shot_set"
+						stat_secondary.pop(9)
+					self.stat_secondary["attack"] = stat_secondary[0]
+					self.stat_secondary["charge_bonus"] = stat_secondary[1]
+					self.stat_secondary["missile"] = stat_secondary[2]
+					self.stat_secondary["range"] = stat_secondary[3]
+					self.stat_secondary["ammunition"] = stat_secondary[4]
+					self.stat_secondary["weapon_type"] = stat_secondary[5]
+					self.stat_secondary["tech_type"] = stat_secondary[6]
+					self.stat_secondary["damage_type"] = stat_secondary[7]
+					self.stat_secondary["sound"] = stat_secondary[8]
+					self.stat_secondary["attack_delay"] = stat_secondary[9]
+					self.stat_secondary["scfim"] = stat_secondary[10]
 				case ["stat_sec_attr", *stat_secondary_attribute]:
 					for a in stat_secondary_attribute:
 						self.stat_secondary_attribute[a] = 1
-				case ["stat_ter", *sp]:
-					if "musket_shot_set" in sp:
-						self.stat_tertiary["musket_shot_set"] = 1
-						sp.pop(9)
-					self.stat_tertiary["attack"] = sp[0]
-					self.stat_tertiary["charge_bonus"] = sp[1]
-					self.stat_tertiary["missile"] = sp[2]
-					self.stat_tertiary["range"] = sp[3]
-					self.stat_tertiary["ammunition"] = sp[4]
-					self.stat_tertiary["weapon_type"] = sp[5]
-					self.stat_tertiary["tech_type"] = sp[6]
-					self.stat_tertiary["damage_type"] = sp[7]
-					self.stat_tertiary["sound"] = sp[8]
-					self.stat_tertiary["atk_delay"] = sp[9]
-					self.stat_tertiary["scfim"] = sp[10]
+				case ["stat_ter", *stat_tertiary]:
+					if "musket_shot_set" in stat_tertiary:
+						self.stat_tertiary["musket_shot_set"] = "musket_shot_set"
+						stat_tertiary.pop(9)
+					self.stat_tertiary["attack"] = stat_tertiary[0]
+					self.stat_tertiary["charge_bonus"] = stat_tertiary[1]
+					self.stat_tertiary["missile"] = stat_tertiary[2]
+					self.stat_tertiary["range"] = stat_tertiary[3]
+					self.stat_tertiary["ammunition"] = stat_tertiary[4]
+					self.stat_tertiary["weapon_type"] = stat_tertiary[5]
+					self.stat_tertiary["tech_type"] = stat_tertiary[6]
+					self.stat_tertiary["damage_type"] = stat_tertiary[7]
+					self.stat_tertiary["sound"] = stat_tertiary[8]
+					self.stat_tertiary["attack_delay"] = stat_tertiary[9]
+					self.stat_tertiary["scfim"] = stat_tertiary[10]
 				case ["stat_ter_attr", *stat_tertiary_attribute]:
 					for a in stat_tertiary_attribute:
 						self.stat_tertiary_attribute[a] = 1
@@ -469,12 +468,11 @@ class Unit:
 					self.stat_secondary_armour["sound"] = ssa[2]
 				case ["stat_heat", sa]:
 					self.stat_heat = sa
-				case ["stat_ground", *sg]:
-					self.stat_ground["scrub"] = sg[0]
-					self.stat_ground["sand"] = sg[1]
-					self.stat_ground["forest"] = sg[2]
-
-					self.stat_ground["snow"] = sg[3]
+				case ["stat_ground", *stat_ground]:
+					self.stat_ground["scrub"] = stat_ground[0]
+					self.stat_ground["sand"] = stat_ground[1]
+					self.stat_ground["forest"] = stat_ground[2]
+					self.stat_ground["snow"] = stat_ground[3]
 				case ["stat_mental", *sm]:
 					self.stat_mental["morale"] = sm[0]
 					self.stat_mental["discipline"] = sm[1]
@@ -520,7 +518,7 @@ class TooManyOfficersError(Exception):
 	pass
 
 
-def create_unit_list(file="export_descr_unit(SS6.4).txt") -> list[Unit]:
+def create_unit_list(file="export_descr_unit.txt") -> list[Unit]:
 	edu = open(file, encoding="ISO-8859-1")
 	lines = edu.readlines()
 	edu.close()
@@ -533,10 +531,6 @@ def create_unit_list(file="export_descr_unit(SS6.4).txt") -> list[Unit]:
 				lines[line_index] = f"{line[:char_index+1]} {line[char_index+1:]}"
 		if line[:4] == "type":
 			unit_starts.append(line_index)
-	'''unit_starts = []
-	for i, line in enumerate(lines):
-		if line[:4] == "type":
-			unit_starts.append(i)'''
 	units = []
 	raw_units = []
 	for start in range(len(unit_starts)):
@@ -558,10 +552,6 @@ def create_unit_list(file="export_descr_unit(SS6.4).txt") -> list[Unit]:
 		unit = Unit()
 		unit.fill_from_list(raw_unit)
 		units.append(unit)
-	'''with open("Modified_EDU", "w") as mod:
-		for unit in units:
-			mod.write(str(unit))
-			mod.write(" \n \n")'''
 	return units
 
 
