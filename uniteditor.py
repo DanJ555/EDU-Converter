@@ -4,7 +4,8 @@ class Unit:
 		self.type: str = None
 		self.dictionary: dict[str: str] = {
 			"name0": None,
-			"name1": None}
+			"name1": None
+		}
 		self.category: str = None
 		self.unit_class: str = None
 		self.voice_type: str = None
@@ -12,11 +13,14 @@ class Unit:
 		self.banner_faction: str = None
 		self.banner_holy: str = None
 		self.banner_unit: str = None
-		self.soldier: dict[str | int | float] = {
+		self.soldier: dict[str, str | int | float] = {
 			"model": "Peasants",
 			"men": 30,
 			"extras": 0,
-			"mass": 1}
+			"mass": 1,
+			"radius": None,
+			"height": None
+		}
 		self.ship: str = None
 		self.officer0: str = None
 		self.officer1: str = None
@@ -84,15 +88,6 @@ class Unit:
 			"defense_skill": 0,
 			"shield": 0,
 			"sound": "flesh"}
-		self.stat_armour_ex = {
-			"armour": 0,
-			"b_armour": 0,
-			"s_armour": 0,
-			"g_armour": 0,
-			"defense_skill": 0,
-			"shield_melee": 0,
-			"shield_missile": 0,
-			"sound": "flesh"}
 		self.stat_secondary_armour: dict[str, str | int] = {
 			"armour": 0,
 			"defense_skill": 0,
@@ -106,7 +101,8 @@ class Unit:
 		self.stat_mental: dict[str, str | int] = {
 			"morale": 0,
 			"discipline": "normal",
-			"training": "trained"}
+			"training": "trained",
+			"lock_morale": None}
 		self.stat_charge_dist: int = 0
 		self.stat_fire_delay: int = 0
 		self.stat_cost: dict[str, int] = {
@@ -135,7 +131,6 @@ class Unit:
 			"era 1": None,
 			"era 2": None}
 		self.recruit_priority_offset: float = None
-		# self.commented_out = []
 		self.raw = None
 
 	def __repr__(self):
@@ -159,8 +154,12 @@ class Unit:
 			lines.append(f"banner unit      {self.banner_unit}")
 		if self.banner_holy is not None:
 			lines.append(f"banner holy      {self.banner_holy}")
-		lines.append(
-			f"soldier{' '*10}{self.soldier['model']}, {self.soldier['men']}, {self.soldier['extras']}, {self.soldier['mass']}")
+		soldier_stat = f"soldier{" "*10}{self.soldier['model']}, {self.soldier['men']}, {self.soldier['extras']}, {self.soldier['mass']}"
+		if self.soldier["radius"]:
+			soldier_stat += f", {self.soldier["radius"]}"
+		if self.soldier["height"]:
+			soldier_stat += f", {self.soldier["height"]}"
+		lines.append(soldier_stat)
 		if self.ship is not None:
 			lines.append(f"ship{' '*13}{self.ship}")
 		if self.officer0 is not None:
@@ -231,10 +230,6 @@ class Unit:
 		for v in self.stat_primary_armour.values():
 			pa += f"{v}, "
 		lines.append(f"stat_pri_armour  {pa[:-2]}")
-		ae = ''
-		for v in self.stat_armour_ex.values():
-			ae += f"{v}, "
-		lines.append(f"stat_armour_ex   {ae[:-2]}")
 		sa = ''
 		for v in self.stat_secondary_armour.values():
 			sa += f"{v}, "
@@ -245,14 +240,14 @@ class Unit:
 			stat_ground += f"{v}, "
 		lines.append(f"stat_ground      {stat_ground[:-2]}")
 		sm = ''
-		for k in self.stat_mental.keys():
-			if k == "lock_morale" and self.stat_mental[k] == 1:
-				sm += f"{k}, "
-			else:
-				sm += f"{self.stat_mental[k]}, "
+		for key in self.stat_mental.keys():
+			sm += f"{self.stat_mental[key]}, "
+			if key == "lock_morale" and self.stat_mental[key] is None:
+				sm = sm[:-6]
 		lines.append(f"stat_mental      {sm[:-2]}")
 		lines.append(f"stat_charge_dist {self.stat_charge_dist}")
 		lines.append(f"stat_fire_delay  {self.stat_fire_delay}")
+		lines.append(f"stat_food        60, 300")  # Does nothing but will crash the game if it's missing.
 		sc = ''
 		for v in self.stat_cost.values():
 			sc += f"{v}, "
@@ -351,6 +346,17 @@ class Unit:
 						self.soldier["mass"] = soldier_stat[3]
 					except IndexError:
 						self.soldier["mass"] = 1
+					try:
+						if ";" not in soldier_stat[4]:
+							self.soldier["radius"] = soldier_stat[4]
+						else:
+							soldier_stat = []
+					except IndexError:
+						pass
+					try:
+						self.soldier["height"] = soldier_stat[5]
+					except IndexError:
+						pass
 				case ["engine", engine]:
 					self.engine = engine
 				case ["ship", *ship]:
@@ -373,6 +379,8 @@ class Unit:
 					self.mount = mount_string[:-1]
 				case ["mount_effect", *effects]:
 					for index, effect in enumerate(effects):
+						if ";" in effect:
+							break
 						if index % 2 == 0:
 							self.mount_effect[effect] = effects[index + 1]
 				case ["attributes", *attributes]:
@@ -448,20 +456,11 @@ class Unit:
 				case ["stat_ter_attr", *stat_tertiary_attribute]:
 					for a in stat_tertiary_attribute:
 						self.stat_tertiary_attribute[a] = 1
-				case ["stat_pri_armour", *stat_primary_armor]:
-					self.stat_primary_armour["armour"] = stat_primary_armor[0]
-					self.stat_primary_armour["defense_skill"] = stat_primary_armor[1]
-					self.stat_primary_armour["shield"] = stat_primary_armor[2]
-					self.stat_primary_armour["sound"] = stat_primary_armor[3]
-				case ["stat_armour_ex", *sae]:  # Unused by game, needs to be removed
-					self.stat_armour_ex["armour"] = sae[0]
-					self.stat_armour_ex["b_armour"] = sae[1]
-					self.stat_armour_ex["s_armour"] = sae[2]
-					self.stat_armour_ex["g_armour"] = sae[3]
-					self.stat_armour_ex["defense_skill"] = sae[4]
-					self.stat_armour_ex["shield_melee"] = sae[5]
-					self.stat_armour_ex["shield_missile"] = sae[6]
-					self.stat_armour_ex["sound"] = sae[7]
+				case ["stat_pri_armour", *stat_primary_armour]:
+					self.stat_primary_armour["armour"] = stat_primary_armour[0]
+					self.stat_primary_armour["defense_skill"] = stat_primary_armour[1]
+					self.stat_primary_armour["shield"] = stat_primary_armour[2]
+					self.stat_primary_armour["sound"] = stat_primary_armour[3]
 				case ["stat_sec_armour", *ssa]:
 					self.stat_secondary_armour["armour"] = ssa[0]
 					self.stat_secondary_armour["defense_skill"] = ssa[1]
@@ -473,12 +472,12 @@ class Unit:
 					self.stat_ground["sand"] = stat_ground[1]
 					self.stat_ground["forest"] = stat_ground[2]
 					self.stat_ground["snow"] = stat_ground[3]
-				case ["stat_mental", *sm]:
-					self.stat_mental["morale"] = sm[0]
-					self.stat_mental["discipline"] = sm[1]
-					self.stat_mental["training"] = sm[2]
+				case ["stat_mental", *stat_mental]:
+					self.stat_mental["morale"] = stat_mental[0]
+					self.stat_mental["discipline"] = stat_mental[1]
+					self.stat_mental["training"] = stat_mental[2]
 					try:
-						self.stat_mental[sm[3]] = 1
+						self.stat_mental[stat_mental[3]] = stat_mental[3]
 					except IndexError:
 						pass
 				case ["stat_charge_dist", d]:
@@ -498,13 +497,18 @@ class Unit:
 					self.stat_stl = s
 				case ["armour_ug_levels", *aul]:
 					for i, s in enumerate(aul):
+						if ";" in s:
+							break
 						self.armour_ug_levels[f"level_{i}"] = s
 				case ["armour_ug_models", *aum]:
 					for i, s in enumerate(aum):
 						self.armour_ug_models[f"level_{i}"] = s
-				case ["ownership", *o]:
-					for f in o:
-						self.ownership.append(f)
+				case ["ownership", *ownership]:
+					if "all" in ownership[0]:
+						self.ownership.append("all")
+					else:
+						for faction in ownership:
+							self.ownership.append(faction)
 				case ["era", num, *o]:
 					self.eras[f"era {num}"] = []
 					for f in o:
