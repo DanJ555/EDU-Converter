@@ -3,8 +3,8 @@ class Unit:
 	def __init__(self):
 		self.type: str = None
 		self.dictionary: dict[str: str] = {
-			"name0": None,
-			"name1": None
+			"name_0": None,
+			"name_1": None
 		}
 		self.category: str = None
 		self.unit_class: str = None
@@ -22,15 +22,15 @@ class Unit:
 			"height": None
 		}
 		self.ship: str = None
-		self.officer0: str = None
-		self.officer1: str = None
-		self.officer2: str = None
+		self.officer_0: str = None
+		self.officer_1: str = None
+		self.officer_2: str = None
 		self.engine: str = None
 		self.animal: str = None
 		self.mounted_engine: str = None
 		self.mount: str = None
 		self.mount_effect: dict[str, str] = {}
-		self.attributes: dict[str, str] = {}
+		self.attributes: list[str] = []
 		self.move_speed_mod: float = None
 		self.formation: [str, str | float | int] = {
 			"close_x": 1.2,
@@ -39,7 +39,8 @@ class Unit:
 			"loose_y": 2.4,
 			"ranks": 8,
 			"shape": "square",
-			"ability": None}
+			"ability": None
+		}
 		self.stat_health: list[int] = [1, 0]
 		self.stat_primary: dict[str, str | int | float] = {
 			"attack": 0,
@@ -53,7 +54,8 @@ class Unit:
 			"sound": "none",
 			"musket_shot_set": None,
 			"attack_delay": 25,
-			"scfim": 1}
+			"scfim": 1
+		}
 		self.stat_primary_attribute: dict[str, str] = {}
 		self.stat_secondary: dict[str, str | int | float] = {
 			"attack": 0,
@@ -67,7 +69,8 @@ class Unit:
 			"sound": "none",
 			"musket_shot_set": None,
 			"attack_delay": 25,
-			"scfim": 1}
+			"scfim": 1
+		}
 		self.stat_secondary_attribute: dict[str, str] = {}
 		self.stat_tertiary: dict[str, str | int | float] = {
 			"attack": None,
@@ -81,28 +84,33 @@ class Unit:
 			"sound": "none",
 			"musket_shot_set": None,
 			"attack_delay": 25,
-			"scfim": 1}
+			"scfim": 1
+		}
 		self.stat_tertiary_attribute: dict[str, str] = {}
 		self.stat_primary_armour: dict[str, int | str] = {
 			"armour": 0,
 			"defense_skill": 0,
 			"shield": 0,
-			"sound": "flesh"}
+			"sound": "flesh"
+		}
 		self.stat_secondary_armour: dict[str, str | int] = {
 			"armour": 0,
 			"defense_skill": 0,
-			"sound": "flesh"}
+			"sound": "flesh"
+		}
 		self.stat_heat: int = 0
 		self.stat_ground: dict[str, int] = {
 			"scrub": 0,
 			"sand": 0,
 			"forest": 0,
-			"snow": 0}
+			"snow": 0
+		}
 		self.stat_mental: dict[str, str | int] = {
 			"morale": 0,
 			"discipline": "normal",
 			"training": "trained",
-			"lock_morale": None}
+			"lock_morale": None
+		}
 		self.stat_charge_dist: int = 0
 		self.stat_fire_delay: int = 0
 		self.stat_cost: dict[str, int] = {
@@ -113,23 +121,27 @@ class Unit:
 			"armour_ug": 0,
 			"custom": 0,
 			"custom_softcap": 0,
-			"custom_penalty": 0}
+			"custom_penalty": 0
+		}
 		self.stat_stl: int = None
 		self.armour_ug_levels: dict[str, int] = {
 			"level_0": 0,
 			"level_1": None,
 			"level_2": None,
-			"level_3": None}
+			"level_3": None
+		}
 		self.armour_ug_models: dict[str, str] = {
 			"level_0": "Peasant",
 			"level_1": None,
 			"level_2": None,
-			"level_3": None}
+			"level_3": None
+		}
 		self.ownership: list[str] = []
 		self.eras: dict[str, list[str]] = {
 			"era 0": None,
 			"era 1": None,
-			"era 2": None}
+			"era 2": None
+		}
 		self.recruit_priority_offset: float = None
 		self.raw = None
 
@@ -138,11 +150,11 @@ class Unit:
 
 	def __str__(self):
 		lines = [f"type{' '*13}{self.type}"]
-		if self.dictionary["name1"] is None:
+		if self.dictionary["name_1"] is None:
 			n = ''
 		else:
-			n = self.dictionary["name1"]
-		lines.append(f"dictionary{' '*7}{self.dictionary['name0']}{' '*6}; {n}")
+			n = self.dictionary["name_1"]
+		lines.append(f"dictionary{' '*7}{self.dictionary['name_0']}{' '*6}; {n}")
 		lines.append(f"category{' '*9}{self.category}")
 		lines.append(f"class{' '*12}{self.unit_class}")
 		lines.append(f"voice_type{' '*7}{self.voice_type}")
@@ -162,12 +174,12 @@ class Unit:
 		lines.append(soldier_stat)
 		if self.ship is not None:
 			lines.append(f"ship{' '*13}{self.ship}")
-		if self.officer0 is not None:
-			lines.append(f"officer{' '*10}{self.officer0}")
-		if self.officer1 is not None:
-			lines.append(f"officer{' '*10}{self.officer1}")
-		if self.officer2 is not None:
-			lines.append(f"officer{' '*10}{self.officer2}")
+		if self.officer_0 is not None:
+			lines.append(f"officer{' '*10}{self.officer_0}")
+		if self.officer_1 is not None:
+			lines.append(f"officer{' '*10}{self.officer_1}")
+		if self.officer_2 is not None:
+			lines.append(f"officer{' '*10}{self.officer_2}")
 		if self.engine is not None:
 			lines.append(f"engine{' '*11}{self.engine}")
 		if self.animal is not None:
@@ -182,8 +194,9 @@ class Unit:
 				me += f"{k} {self.mount_effect[k]}, "
 		if me != '':
 			lines.append(f"mount_effect     {me[:-2]}")
-		at = ''
-		for k in self.attributes.keys():
+		at = ", ".join(self.attributes)
+		# Used to handle attributes with a dict
+		"""for k in self.attributes.keys():
 			if self.attributes[k] > 0:
 				if k == "stakes":
 					at += f"{k}, "*2
@@ -192,7 +205,7 @@ class Unit:
 		if at[-2:] == ", ":
 			at = at[:-2]
 		elif at == '':
-			at = "no"
+			at = "no"""
 		lines.append(f"attributes       {at}")
 		if self.move_speed_mod:
 			lines.append(f"move_speed_mod   {self.move_speed_mod}")
@@ -315,12 +328,12 @@ class Unit:
 						name += f"{word} "
 					self.type = name[:-1]
 				case (["dictionary", *dictionary]):
-					self.dictionary["name0"] = dictionary[0]
+					self.dictionary["name_0"] = dictionary[0]
 					try:
 						name = ''
 						for word in dictionary[2:]:
 							name += f"{word} "
-						self.dictionary["name1"] = name[:-1]
+						self.dictionary["name_1"] = name[:-1]
 					except KeyError:
 						pass
 				case ["category", category]:
@@ -362,12 +375,12 @@ class Unit:
 				case ["ship", *ship]:
 					self.ship = f"{ship[0]} {ship[1]}"
 				case ["officer", officer]:
-					if self.officer0 is None:
-						self.officer0 = officer
-					elif self.officer1 is None:
-						self.officer1 = officer
-					elif self.officer2 is None:
-						self.officer2 = officer
+					if self.officer_0 is None:
+						self.officer_0 = officer
+					elif self.officer_1 is None:
+						self.officer_1 = officer
+					elif self.officer_2 is None:
+						self.officer_2 = officer
 					else:
 						raise TooManyOfficersError("A unit can only have 3 officers maximum")
 				case ["mounted_engine", mounted_engine]:
@@ -385,7 +398,7 @@ class Unit:
 							self.mount_effect[effect] = effects[index + 1]
 				case ["attributes", *attributes]:
 					for attribute in attributes:
-						self.attributes[attribute] = 1
+						self.attributes.append(attribute)
 				case ["move_speed_mod", mod]:
 					self.move_speed_mod = mod
 				case ["formation", *formation_stats]:
@@ -561,10 +574,11 @@ def create_unit_list(file="export_descr_unit.txt") -> list[Unit]:
 
 def main():
 	units = create_unit_list()
-	with open("Modified_EDU", "w") as mod:
+	with open("Modified_EDU.txt", "w") as mod:
 		for unit in units:
 			mod.write(str(unit))
 			mod.write(" \n \n")
+			print(unit.attributes)
 
 
 if __name__ == "__main__":

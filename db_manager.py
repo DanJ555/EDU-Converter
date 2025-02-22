@@ -45,10 +45,10 @@ def initialize_database(db_name="export_descr_unit.db"):
         dictionary TEXT UNIQUE NOT NULL,
         soldier_model TEXT,
         soldier_count INTEGER,
-        soldier_extras REAL,
-        soldier_collision_mass REAL,
-        soldier_radius REAL,
-        soldier_height REAL,
+        soldier_extras INTEGER,
+        soldier_collision_mass INTEGER,
+        soldier_radius INTEGER,
+        soldier_height INTEGER,
         officer_0 TEXT,
         officer_1 TEXT,
         officer_2 TEXT,
@@ -60,10 +60,10 @@ def initialize_database(db_name="export_descr_unit.db"):
         mount_effect_0 TEXT,
         mount_effect_1 TEXT,
         mount_effect_2 TEXT,
-        close_x REAL,
-        close_y REAL,
-        loose_x REAL,
-        loose_y REAL,
+        close_x INTEGER,
+        close_y INTEGER,
+        loose_x INTEGER,
+        loose_y INTEGER,
         ranks INTEGER,
         shape TEXT,
         ability TEXT,
@@ -80,7 +80,7 @@ def initialize_database(db_name="export_descr_unit.db"):
         stat_mental_lock_morale TEXT,
         stat_charge_distance INTEGER,
         stat_fire_delay INTEGER,
-        move_speed_mod REAL,
+        move_speed_mod INTEGER,
         FOREIGN KEY (unit_id) REFERENCES units (unit_id)
     );
 
@@ -100,7 +100,7 @@ def initialize_database(db_name="export_descr_unit.db"):
         sound TEXT,
         musket_shot_set TEXT,
         attack_delay INTEGER,
-        scfim REAL,
+        scfim INTEGER,
         attribute TEXT,
         FOREIGN KEY (unit_id) REFERENCES units (unit_id)
     );
@@ -154,9 +154,9 @@ def insert_unit(conn, unit):
             stat_stl, ownership, era_0, era_1, era_2, recruit_priority_offset
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
-        unit.dictionary["name0"],
+        unit.dictionary["name_0"],
         unit.type,
-        unit.dictionary["name1"],
+        unit.dictionary["name_1"],
         unit.category,
         unit.unit_class,
         unit.voice_type,
@@ -164,7 +164,7 @@ def insert_unit(conn, unit):
         unit.banner_faction,
         unit.banner_holy,
         unit.banner_unit,
-        ", ".join(unit.attributes.keys()),  # Convert attributes dictionary to a comma-separated string
+        ", ".join(unit.attributes),  # Convert attributes dictionary to a comma-separated string
         unit.stat_cost["turns"],
         unit.stat_cost["construct"],
         unit.stat_cost["upkeep"],
@@ -173,8 +173,8 @@ def insert_unit(conn, unit):
         unit.stat_cost["custom"],
         unit.stat_cost["custom_softcap"],
         unit.stat_cost["custom_penalty"],
-        ", ".join(unit.ownership),  # Convert ownership list to a comma-separated string
         unit.stat_stl,
+        ", ".join(unit.ownership),  # Convert ownership list to a comma-separated string
         str_join(unit.eras["era 0"]),
         str_join(unit.eras["era 1"]),
         str_join(unit.eras["era 2"]),
@@ -198,16 +198,16 @@ def insert_unit(conn, unit):
          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         unit_id,
-        unit.dictionary["name0"],
+        unit.dictionary["name_0"],
         unit.soldier["model"],
         unit.soldier["men"],
         unit.soldier["extras"],
         unit.soldier["mass"],
         unit.soldier["radius"],
         unit.soldier["height"],
-        unit.officer0,
-        unit.officer1,
-        unit.officer2,
+        unit.officer_0,
+        unit.officer_1,
+        unit.officer_2,
         unit.ship,
         unit.engine,
         unit.animal,
@@ -254,7 +254,7 @@ def insert_unit(conn, unit):
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 unit_id,
-                unit.dictionary["name0"],
+                unit.dictionary["name_0"],
                 weapon_category,
                 stat["attack"],
                 stat["charge_bonus"],
@@ -280,7 +280,7 @@ def insert_unit(conn, unit):
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         unit_id,
-        unit.dictionary["name0"],
+        unit.dictionary["name_0"],
         unit.stat_primary_armour["armour"],
         unit.stat_primary_armour["defense_skill"],
         unit.stat_primary_armour["shield"],
@@ -303,9 +303,143 @@ def extract_units(conn) -> list[Unit]:
     FROM
         units
     """)
-    rows = cursor.fetchall()
-    for row in rows:
-        print(row)
+    rows_units = cursor.fetchall()
+
+    cursor.execute("""
+            SELECT
+                *
+            FROM
+                formations
+            """)
+    rows_formations = cursor.fetchall()
+
+    cursor.execute("""
+                SELECT
+                    *
+                FROM
+                    armour
+                """)
+    rows_armour = cursor.fetchall()
+
+    cursor.execute("""
+                    SELECT
+                        *
+                    FROM
+                        weapons
+                    """)
+    rows_weapons = cursor.fetchall()
+
+    units = [Unit() for _ in range(len(rows_units))]
+    for row in rows_units:
+        unit = units[row[0] - 1]
+        unit.dictionary["name_0"] = row[1]
+        unit.type = row[2]
+        unit.dictionary["name_1"] = row[3]
+        unit.category = row[4]
+        unit.unit_class = row[5]
+        unit.voice_type = row[6]
+        unit.accent = row[7]
+        unit.banner_faction = row[8]
+        unit.banner_holy = row[9]
+        unit.banner_unit = row[10]
+        # print(row[11])
+        for attribute in row[11].split():
+            if "," in attribute:
+                attribute = attribute[:-1]
+            unit.attributes.append(attribute)
+        unit.stat_cost["turns"] = row[12]
+        unit.stat_cost["construct"] = row[13]
+        unit.stat_cost["upkeep"] = row[14]
+        unit.stat_cost["weapon_ug"] = row[15]
+        unit.stat_cost["armour_ug"] = row[16]
+        unit.stat_cost["custom"] = row[17]
+        unit.stat_cost["custom_softcap"] = row[18]
+        unit.stat_cost["custom_penalty"] = row[19]
+        unit.stat_stl = row[20]
+        for owner in row[21].split():
+            if "," in owner:
+                owner = owner[:-1]
+            unit.ownership.append(owner)
+        era_index = (
+            ("era 0", 22),
+            ("era 1", 23),
+            ("era 2", 24)
+        )
+        for era, index in era_index:
+            # print(row[ind])
+            if row[index] is not None:
+                unit.eras[era] = []
+                for owner in row[index].split():
+                    if "," in owner:
+                        owner = owner[:-1]
+                    unit.eras[era].append(owner)
+        unit.recruit_priority_offset = row[25]
+
+    for row in rows_formations:
+        unit = units[row[0] - 1]
+        unit.soldier["model"] = row[2]
+        unit.soldier["men"] = row[3]
+        unit.soldier["extras"] = row[4]
+        unit.soldier["mass"] = row[5]
+        unit.soldier["radius"] = row[6]
+        unit.soldier["height"] = row[7]
+        unit.officer_0 = row[8]
+        unit.officer_1 = row[9]
+        unit.officer_2 = row[10]
+        unit.ship = row[11]
+        unit.engine = row[12]
+        unit.animal = row[13]
+        unit.mounted_engine = row[14]
+        unit.mount = row[15]
+        for index in (16, 17, 18):
+            if row[index] is not None:
+                mount, effect = row[index].split()
+                unit.mount_effect[mount] = effect
+        unit.formation["close_x"] = row[19]
+        unit.formation["close_y"] = row[20]
+        unit.formation["loose_x"] = row[21]
+        unit.formation["loose_y"] = row[22]
+        unit.formation["ranks"] = row[23]
+        unit.formation["shape"] = row[24]
+        unit.formation["ability"] = row[25]
+        unit.stat_health[0] = row[26]
+        unit.stat_health[1] = row[27]
+        unit.stat_heat = row[28]
+        unit.stat_ground["scrub"] = row[29]
+        unit.stat_ground["sand"] = row[30]
+        unit.stat_ground["forest"] = row[31]
+        unit.stat_ground["snow"] = row[32]
+        unit.stat_mental["morale"] = row[33]
+        unit.stat_mental["discipline"] = row[34]
+        unit.stat_mental["training"] = row[35]
+        unit.stat_mental["lock_morale"] = row[36]
+        unit.stat_charge_dist = row[37]
+        unit.stat_fire_delay = row[38]
+        unit.move_speed_mod = row[39]
+
+    for row in rows_armour:
+        unit = units[row[0]-1]
+        unit.stat_primary_armour["armour"] = row[2]
+        unit.stat_primary_armour["defense_skill"] = row[3]
+        unit.stat_primary_armour["shield"] = row[4]
+        unit.stat_primary_armour["sound"] = row[5]
+        unit.stat_secondary_armour["armour"] = row[6]
+        unit.stat_secondary_armour["defense_skill"] = row[7]
+        unit.stat_secondary_armour["sound"] = row[8]
+        unit.armour_ug_levels = eval(row[9])
+        unit.armour_ug_models = eval(row[10])
+
+    weapon_map = {
+        "primary": "stat_primary_attribute",
+        "secondary": "stat_secondary_attribute",
+        "tertiary": "stat_tertiary_attribute"
+    }
+
+    for row in rows_weapons:
+        unit = units[row[1]-1]
+
+
+    return units
 
 
 if __name__ == "__main__":
@@ -314,10 +448,13 @@ if __name__ == "__main__":
     units: list[Unit] = uniteditor.create_unit_list(file="export_descr_unit.txt")  # Replace with real data
     conn = sqlite3.connect("export_descr_unit.db")
 
-    for unit in units:
-        insert_unit(conn, unit)
+    """for unit in units:
+        insert_unit(conn, unit)"""
 
-    extract_units(conn)
+    units_list = extract_units(conn)
+    for unit in units_list:
+        print(str(unit))
+        pass
 
     conn.close()
     print("Database populated successfully!")
