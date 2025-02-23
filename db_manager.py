@@ -268,7 +268,7 @@ def insert_unit(conn, unit):
                 stat["musket_shot_set"],
                 stat["attack_delay"],
                 stat["scfim"],
-                ", ".join(unit.stat_primary_attribute.keys())  # Convert dict to string for now
+                ", ".join(unit.stat_primary_attribute)  # Convert dict to string for now
             ))
 
     # Insert armour data
@@ -429,15 +429,30 @@ def extract_units(conn) -> list[Unit]:
         unit.armour_ug_levels = eval(row[9])
         unit.armour_ug_models = eval(row[10])
 
-    weapon_map = {
-        "primary": "stat_primary_attribute",
-        "secondary": "stat_secondary_attribute",
-        "tertiary": "stat_tertiary_attribute"
-    }
+        "stat_primary"
+        "stat_primary_attribute"
 
-    for row in rows_weapons:
-        unit = units[row[1]-1]
-
+    for weapon in rows_weapons:
+        unit = units[weapon[1]-1]
+        category = weapon[3]
+        stat = getattr(unit, f"stat_{category}")
+        stat_attribute = getattr(unit, f"stat_{category}_attribute")
+        stat["attack"] = weapon[4]
+        stat["charge_bonus"] = weapon[5]
+        stat["missile"] = weapon[6]
+        stat["range"] = weapon[7]
+        stat["ammunition"] = weapon[8]
+        stat["weapon_type"] = weapon[9]
+        stat["tech_type"] = weapon[10]
+        stat["damage_type"] = weapon[11]
+        stat["sound"] = weapon[12]
+        stat["musket_shot_set"] = weapon[13]
+        stat["attack_delay"] = weapon[14]
+        stat["scfim"] = weapon[15]
+        for attribute in weapon[16].split():
+            if "," in attribute:
+                attribute = attribute[:-1]
+            stat_attribute.append(attribute)
 
     return units
 

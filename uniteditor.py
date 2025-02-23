@@ -56,7 +56,7 @@ class Unit:
 			"attack_delay": 25,
 			"scfim": 1
 		}
-		self.stat_primary_attribute: dict[str, str] = {}
+		self.stat_primary_attribute: list[str] = []
 		self.stat_secondary: dict[str, str | int | float] = {
 			"attack": 0,
 			"charge_bonus": 0,
@@ -71,7 +71,7 @@ class Unit:
 			"attack_delay": 25,
 			"scfim": 1
 		}
-		self.stat_secondary_attribute: dict[str, str] = {}
+		self.stat_secondary_attribute: list[str] = []
 		self.stat_tertiary: dict[str, str | int | float] = {
 			"attack": None,
 			"charge_bonus": 0,
@@ -86,7 +86,7 @@ class Unit:
 			"attack_delay": 25,
 			"scfim": 1
 		}
-		self.stat_tertiary_attribute: dict[str, str] = {}
+		self.stat_tertiary_attribute: list[str] = []
 		self.stat_primary_armour: dict[str, int | str] = {
 			"armour": 0,
 			"defense_skill": 0,
@@ -232,12 +232,13 @@ class Unit:
 				else:
 					sp += f"{stat[0][key]}, "
 			lines.append(f"stat_{pre[i]}{' '*9}{sp[:-2]}")
-			sp = ''
-			for k in stat[1].keys():
+			sp = ", ".join(stat[1])
+			lines.append(f"stat_{pre[i]}_attr    {sp}")
+			'''for k in stat[1].keys():
 				if stat[1][k]:
 					if stat[1][k] == 1:
 						sp += f"{k}, "
-			lines.append(f"stat_{pre[i]}_attr    {sp[:-2]}")
+			lines.append(f"stat_{pre[i]}_attr    {sp[:-2]}")'''
 			i += 1
 		pa = ''
 		for v in self.stat_primary_armour.values():
@@ -431,8 +432,8 @@ class Unit:
 					self.stat_primary["attack_delay"] = stat_primary[9]
 					self.stat_primary["scfim"] = stat_primary[10]
 				case ["stat_pri_attr", *stat_primary_attribute]:
-					for a in stat_primary_attribute:
-						self.stat_primary_attribute[a] = 1
+					for attribute in stat_primary_attribute:
+						self.stat_primary_attribute.append(attribute)
 				case ["stat_sec", *stat_secondary]:
 					if "musket_shot_set" in stat_secondary:
 						self.stat_secondary["musket_shot_set"] = "musket_shot_set"
@@ -449,8 +450,8 @@ class Unit:
 					self.stat_secondary["attack_delay"] = stat_secondary[9]
 					self.stat_secondary["scfim"] = stat_secondary[10]
 				case ["stat_sec_attr", *stat_secondary_attribute]:
-					for a in stat_secondary_attribute:
-						self.stat_secondary_attribute[a] = 1
+					for attribute in stat_secondary_attribute:
+						self.stat_secondary_attribute.append(attribute)
 				case ["stat_ter", *stat_tertiary]:
 					if "musket_shot_set" in stat_tertiary:
 						self.stat_tertiary["musket_shot_set"] = "musket_shot_set"
@@ -467,8 +468,8 @@ class Unit:
 					self.stat_tertiary["attack_delay"] = stat_tertiary[9]
 					self.stat_tertiary["scfim"] = stat_tertiary[10]
 				case ["stat_ter_attr", *stat_tertiary_attribute]:
-					for a in stat_tertiary_attribute:
-						self.stat_tertiary_attribute[a] = 1
+					for attribute in stat_tertiary_attribute:
+						self.stat_tertiary_attribute.append(attribute)
 				case ["stat_pri_armour", *stat_primary_armour]:
 					self.stat_primary_armour["armour"] = stat_primary_armour[0]
 					self.stat_primary_armour["defense_skill"] = stat_primary_armour[1]
