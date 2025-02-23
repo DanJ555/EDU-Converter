@@ -195,17 +195,6 @@ class Unit:
 		if me != '':
 			lines.append(f"mount_effect     {me[:-2]}")
 		at = ", ".join(self.attributes)
-		# Used to handle attributes with a dict
-		"""for k in self.attributes.keys():
-			if self.attributes[k] > 0:
-				if k == "stakes":
-					at += f"{k}, "*2
-				else:
-					at += f"{k}, "
-		if at[-2:] == ", ":
-			at = at[:-2]
-		elif at == '':
-			at = "no"""
 		lines.append(f"attributes       {at}")
 		if self.move_speed_mod:
 			lines.append(f"move_speed_mod   {self.move_speed_mod}")
@@ -234,11 +223,6 @@ class Unit:
 			lines.append(f"stat_{pre[i]}{' '*9}{sp[:-2]}")
 			sp = ", ".join(stat[1])
 			lines.append(f"stat_{pre[i]}_attr    {sp}")
-			'''for k in stat[1].keys():
-				if stat[1][k]:
-					if stat[1][k] == 1:
-						sp += f"{k}, "
-			lines.append(f"stat_{pre[i]}_attr    {sp[:-2]}")'''
 			i += 1
 		pa = ''
 		for v in self.stat_primary_armour.values():
@@ -290,15 +274,6 @@ class Unit:
 				lines.append(f"{era[0]}{' '*12}{e[:-2]}")
 		if self.recruit_priority_offset is not None:
 			lines.append(f"recruit_priority_offset    {self.recruit_priority_offset}")
-		# No longer supporting commenting out lines of unit stats.
-		# Was mostly just lines that don't do anything even uncommented
-		# since they no longer had a function in the game. And if you don't
-		# want it to affect your unit, just leave it out.
-		'''if self.commented_out is not None: 
-			print(self.commented_out)
-			print(self.dictionary)
-			for i in self.commented_out:
-				lines[i] = f";{lines[i]}"'''
 		r = ''
 		for line in lines:
 			r += (line + "\n")
@@ -314,13 +289,6 @@ class Unit:
 
 	def fill_from_list(self, stat_list):
 		self.raw = stat_list
-		'''for index, line in enumerate(stat_list):
-			try:
-				if ';' in line[0]:
-					self.commented_out.append(index)
-					stat_list[index][0] = line[0][1:]
-			except IndexError:
-				pass'''
 		for line in stat_list:
 			match line:
 				case ["type", *unit_type]:

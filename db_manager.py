@@ -342,7 +342,6 @@ def extract_units(conn) -> list[Unit]:
         unit.banner_faction = row[8]
         unit.banner_holy = row[9]
         unit.banner_unit = row[10]
-        # print(row[11])
         for attribute in row[11].split():
             if "," in attribute:
                 attribute = attribute[:-1]
@@ -366,7 +365,6 @@ def extract_units(conn) -> list[Unit]:
             ("era 2", 24)
         )
         for era, index in era_index:
-            # print(row[ind])
             if row[index] is not None:
                 unit.eras[era] = []
                 for owner in row[index].split():
@@ -428,9 +426,6 @@ def extract_units(conn) -> list[Unit]:
         unit.stat_secondary_armour["sound"] = row[8]
         unit.armour_ug_levels = eval(row[9])
         unit.armour_ug_models = eval(row[10])
-
-        "stat_primary"
-        "stat_primary_attribute"
 
     for weapon in rows_weapons:
         unit = units[weapon[1]-1]
