@@ -81,6 +81,10 @@ python cli.py
   exit
   ```
 
+### Database Management
+
+For manual database edits, we recommend using [DB Browser for SQLite](https://sqlitebrowser.org/). This free and open-source tool allows you to view, modify, and commit changes to the database with a graphical interface.
+
 ---
 
 ## Known Issues
@@ -99,3 +103,92 @@ Contributions and suggestions are welcome. Feel free to open issues or submit pu
 ## License
 
 This project is provided under the GPLv3 License.
+
+
+# Total War EDU Editor
+
+## Overview
+
+The **Total War EDU Editor** is a Python-based tool that allows modders to efficiently edit and manage unit stats for *Rome: Total War*, *Medieval II: Total War*, *Rome Remastered*, and various mods. By transitioning from text-based `export_descr_unit.txt` (EDU) editing to a structured **SQLite database**, this tool provides a streamlined way to modify, query, and batch-edit unit data.
+
+## Features
+
+- **Convert EDU to SQLite:** Automatically parses `export_descr_unit.txt` into an organized database.
+- **Edit Units via CLI:** Modify unit attributes, weapons, armor, and formations directly from the command line.
+- **Multiple Database Tables:**
+  - `units` → Core unit data.
+  - `weapons` → Primary, secondary, and tertiary weapon data.
+  - `armor` → Primary and secondary armor stats.
+  - `formations` → Unit spacing, morale, fatigue, and charge distance.
+- **Ownership & Attributes Parsing:** Stored as comma-separated values, handled via Python.
+- **Batch Editing Support:** Modify multiple units at once using SQL queries or CLI commands.
+
+## Installation
+
+### Prerequisites
+
+Ensure you have **Python 3.9+** installed along with the required dependencies:
+
+```sh
+pip install sqlite3 argparse
+```
+
+### Setup
+
+1. Clone the repository:
+   ```sh
+   git clone https://github.com/YourUsername/TotalWar-EDU-Editor.git
+   cd TotalWar-EDU-Editor
+   ```
+2. Initialize the database:
+   ```sh
+   python cli.py initialize
+   ```
+3. Convert an EDU file to the database:
+   ```sh
+   python cli.py convert path/to/export_descr_unit.txt
+   ```
+
+## Database Management
+
+For manual database edits, we recommend using [DB Browser for SQLite](https://sqlitebrowser.org/). This free and open-source tool allows you to view, modify, and commit changes to the database with a graphical interface.
+
+## Usage
+
+### Editing Unit Data
+
+Modify a unit’s stat using the CLI:
+
+```sh
+python cli.py edit <unit_name> <stat> <value>
+```
+
+Example:
+
+```sh
+python cli.py edit Dismounted_Feudal_Knights stat_pri_attack 12
+```
+
+### Export Changes Back to EDU
+
+Once all edits are made, generate a new `export_descr_unit.txt`:
+
+```sh
+python cli.py export path/to/new_export_descr_unit.txt
+```
+
+## Planned Features
+
+- **GUI Support**: A graphical interface for easier editing.
+- **Batch Edits**: Apply filters and modify multiple units at once.
+- **Mod Compatibility**: Auto-detect game version for tailored editing.
+- **Validation & Logging**: Catch invalid entries and log changes.
+
+## Contributing
+
+Feel free to submit **issues, feature requests, or pull requests** on GitHub!
+
+## License
+
+MIT License. Free to use and modify.
+
