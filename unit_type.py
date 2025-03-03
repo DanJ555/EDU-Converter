@@ -156,10 +156,10 @@ class Unit:
 	def __str__(self):
 		lines = [f"type{" "*13}{self.type}"]
 		if self.dictionary["name_1"] is None:
-			n = ""
+			name = ""
 		else:
-			n = self.dictionary["name_1"]
-		lines.append(f"dictionary{" "*7}{self.dictionary["name_0"]}{" "*6}; {n}")
+			name = self.dictionary["name_1"]
+		lines.append(f"dictionary{" "*7}{self.dictionary["name_0"]}{" "*6}; {name}")
 		lines.append(f"category{" "*9}{self.category}")
 		lines.append(f"class{" "*12}{self.unit_class}")
 		lines.append(f"voice_type{" "*7}{self.voice_type}")
@@ -193,21 +193,21 @@ class Unit:
 			lines.append(f"mounted_engine   {self.mounted_engine}")
 		if self.mount is not None:
 			lines.append(f"mount{" "*12}{self.mount}")
-		me = ""
-		for k in self.mount_effect.keys():
+		mount_effect = ""
+		for key in self.mount_effect.keys():
 			if self.mount_effect != {}:
-				me += f"{k} {self.mount_effect[k]}, "
-		if me != "":
-			lines.append(f"mount_effect     {me[:-2]}")
+				mount_effect += f"{key} {self.mount_effect[key]}, "
+		if mount_effect != "":
+			lines.append(f"mount_effect     {mount_effect[:-2]}")
 		at = ", ".join(self.attributes)
 		lines.append(f"attributes       {at}")
 		if self.move_speed_mod:
 			lines.append(f"move_speed_mod   {self.move_speed_mod}")
-		fo = ""
-		for v in self.formation.values():
-			if v is not None:
-				fo += f"{v}, "
-		lines.append(f"formation{" "*8}{fo[:-2]}")
+		formation = ""
+		for value in self.formation.values():
+			if value is not None:
+				formation += f"{value}, "
+		lines.append(f"formation{" "*8}{formation[:-2]}")
 		lines.append(f"stat_health      {self.stat_health[0]}, {self.stat_health[1]}")
 		i = 0
 		pre = ("pri", "sec", "ter")
@@ -217,72 +217,72 @@ class Unit:
 				(self.stat_tertiary, self.stat_tertiary_attribute)):
 			if stat[0]["attack"] is None:
 				break
-			sp = ""
+			stat_pst = ""
 			for key in stat[0].keys():
 				if stat[0][key] is None:
-					sp += "no, "
+					stat_pst += "no, "
 					if key == "musket_shot_set":
-						sp = sp[:-4]
+						stat_pst = stat_pst[:-4]
 				else:
-					sp += f"{stat[0][key]}, "
-			lines.append(f"stat_{pre[i]}{" "*9}{sp[:-2]}")
-			sp = ", ".join(stat[1])
-			lines.append(f"stat_{pre[i]}_attr    {sp}")
+					stat_pst += f"{stat[0][key]}, "
+			lines.append(f"stat_{pre[i]}{" "*9}{stat_pst[:-2]}")
+			attributes = ", ".join(stat[1])
+			lines.append(f"stat_{pre[i]}_attr    {attributes}")
 			i += 1
-		pa = ""
+		primary_armour = ""
 		for v in self.stat_primary_armour.values():
-			pa += f"{v}, "
-		lines.append(f"stat_pri_armour  {pa[:-2]}")
-		sa = ""
+			primary_armour += f"{v}, "
+		lines.append(f"stat_pri_armour  {primary_armour[:-2]}")
+		secondary_armour = ""
 		for v in self.stat_secondary_armour.values():
-			sa += f"{v}, "
-		lines.append(f"stat_sec_armour  {sa[:-2]}")
+			secondary_armour += f"{v}, "
+		lines.append(f"stat_sec_armour  {secondary_armour[:-2]}")
 		lines.append(f"stat_heat{" "*8}{self.stat_heat}")
 		stat_ground = ""
-		for v in self.stat_ground.values():
-			stat_ground += f"{v}, "
+		for value in self.stat_ground.values():
+			stat_ground += f"{value}, "
 		lines.append(f"stat_ground      {stat_ground[:-2]}")
-		sm = ""
+		stat_mental = ""
 		for key in self.stat_mental.keys():
-			sm += f"{self.stat_mental[key]}, "
+			stat_mental += f"{self.stat_mental[key]}, "
 			if key == "lock_morale" and self.stat_mental[key] is None:
-				sm = sm[:-6]
-		lines.append(f"stat_mental      {sm[:-2]}")
+				stat_mental = stat_mental[:-6]
+		lines.append(f"stat_mental      {stat_mental[:-2]}")
 		lines.append(f"stat_charge_dist {self.stat_charge_dist}")
 		lines.append(f"stat_fire_delay  {self.stat_fire_delay}")
 		lines.append(f"stat_food        60, 300")  # Does nothing but will crash the game if it's missing.
-		sc = ""
-		for v in self.stat_cost.values():
-			sc += f"{v}, "
-		lines.append(f"stat_cost{" "*8}{sc[:-2]}")
+		stat_cost = ""
+		for value in self.stat_cost.values():
+			stat_cost += f"{value}, "
+		lines.append(f"stat_cost{" "*8}{stat_cost[:-2]}")
 		if self.stat_stl:
 			lines.append(f"stat_stl{" "*9}{self.stat_stl}")
-		ul = ""
-		for v in self.armour_ug_levels.values():
-			if v is not None:
-				ul += f"{v}, "
-		lines.append(f"armour_ug_levels {ul[:-2]}")
-		um = ""
-		for v in self.armour_ug_models.values():
-			if v is not None:
-				um += f"{v}, "
-		lines.append(f"armour_ug_models {um[:-2]}")
-		o = ""
-		for v in self.ownership:
-			o += f"{v}, "
-		lines.append(f"ownership{" "*8}{o[:-2]}")
+		upgrade_level = ""
+		for value in self.armour_ug_levels.values():
+			if value is not None:
+				upgrade_level += f"{value}, "
+		lines.append(f"armour_ug_levels {upgrade_level[:-2]}")
+		upgrade_model = ""
+		for value in self.armour_ug_models.values():
+			if value is not None:
+				upgrade_model += f"{value}, "
+		lines.append(f"armour_ug_models {upgrade_model[:-2]}")
+		owner = ""
+		for value in self.ownership:
+			owner += f"{value}, "
+		lines.append(f"ownership{" "*8}{owner[:-2]}")
 		for era in self.eras.items():
 			if era[1] is not None:
-				e = ""
-				for v in era[1]:
-					e += f"{v}, "
-				lines.append(f"{era[0]}{" "*12}{e[:-2]}")
+				era_line = ""
+				for value in era[1]:
+					era_line += f"{value}, "
+				lines.append(f"{era[0]}{" "*12}{era_line[:-2]}")
 		if self.recruit_priority_offset is not None:
 			lines.append(f"recruit_priority_offset    {self.recruit_priority_offset}")
-		r = ""
+		final = ""
 		for line in lines:
-			r += (line + "\n")
-		return r
+			final += (line + "\n")
+		return final
 
 	def fill_from_list(self, stat_list):
 		self.raw = stat_list
@@ -457,19 +457,19 @@ class Unit:
 						self.stat_mental[stat_mental[3]] = stat_mental[3]
 					except IndexError:
 						pass
-				case ["stat_charge_dist", d]:
-					self.stat_charge_dist = d
-				case ["stat_fire_delay", d]:
-					self.stat_fire_delay = d
-				case ["stat_cost", *sc]:
-					self.stat_cost["turns"] = sc[0]
-					self.stat_cost["construct"] = sc[1]
-					self.stat_cost["upkeep"] = sc[2]
-					self.stat_cost["weapon_ug"] = sc[3]
-					self.stat_cost["armour_ug"] = sc[4]
-					self.stat_cost["custom"] = sc[5]
-					self.stat_cost["custom_softcap"] = sc[6]
-					self.stat_cost["custom_penalty"] = sc[7]
+				case ["stat_charge_dist", distance]:
+					self.stat_charge_dist = distance
+				case ["stat_fire_delay", delay]:
+					self.stat_fire_delay = delay
+				case ["stat_cost", *stat_cost]:
+					self.stat_cost["turns"] = stat_cost[0]
+					self.stat_cost["construct"] = stat_cost[1]
+					self.stat_cost["upkeep"] = stat_cost[2]
+					self.stat_cost["weapon_ug"] = stat_cost[3]
+					self.stat_cost["armour_ug"] = stat_cost[4]
+					self.stat_cost["custom"] = stat_cost[5]
+					self.stat_cost["custom_softcap"] = stat_cost[6]
+					self.stat_cost["custom_penalty"] = stat_cost[7]
 				case ["stat_stl", s]:
 					self.stat_stl = s
 				case ["armour_ug_levels", *aul]:
@@ -495,7 +495,7 @@ class Unit:
 
 
 def create_units_from_txt(file="export_descr_unit.txt") -> list[Unit]:
-	edu = open(file, encoding="UTF-8")
+	edu = open(file)
 	lines = edu.readlines()
 	edu.close()
 	# Makes instances of missing spaces between commas separated

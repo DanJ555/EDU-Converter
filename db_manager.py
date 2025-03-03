@@ -122,7 +122,7 @@ def initialize_database(db_name="export_descr_unit.db") -> sqlite3.Connection:
     conn.commit()
     return conn
 
-def open_database(db_name="test.db", unit_list=None) -> sqlite3.Connection:
+def open_database(db_name="export_descr_unit.db", unit_list=None) -> sqlite3.Connection:
     try:
         open(db_name)
         return sqlite3.connect(db_name)
@@ -455,7 +455,7 @@ def extract_units(conn) -> list[Unit]:
 
 def main() -> None:
     unit_list: list[Unit] = create_units_from_txt(file="export_descr_unit.txt")
-    conn = open_database("test.db", unit_list)
+    conn = open_database("export_descr_unit.db", unit_list)
     db_unit_list = extract_units(conn)
 
     for unit in db_unit_list:
