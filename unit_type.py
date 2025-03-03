@@ -530,6 +530,7 @@ def create_units_from_txt(file="export_descr_unit.txt") -> list[Unit]:
 		units.append(unit)
 	return units
 
+
 def create_edu_file(unit_list, file_name="Modified_EDU.txt"):
 	with open(file_name, "w") as mod_edu:
 		for unit in unit_list:

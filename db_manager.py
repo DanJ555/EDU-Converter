@@ -122,6 +122,7 @@ def initialize_database(db_name="export_descr_unit.db") -> sqlite3.Connection:
     conn.commit()
     return conn
 
+
 def open_database(db_name="export_descr_unit.db", unit_list=None) -> sqlite3.Connection:
     try:
         open(db_name)
@@ -133,11 +134,13 @@ def open_database(db_name="export_descr_unit.db", unit_list=None) -> sqlite3.Con
                 insert_unit(conn, unit)
         return initialize_database(db_name)
 
+
 def _str_join(collection: list) -> str | None:
     try:
         return ", ".join(collection)
     except TypeError:
         return None
+
 
 def _dict_pair(dictionary: dict, index: int) -> str | None:
     item = tuple(dictionary.items())
@@ -145,6 +148,7 @@ def _dict_pair(dictionary: dict, index: int) -> str | None:
         return f"{item[index][0]} {item[index][1]}"
     except IndexError:
         return None
+
 
 def insert_unit(conn, unit):
     cursor = conn.cursor()

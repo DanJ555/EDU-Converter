@@ -1,10 +1,12 @@
 from db_manager import *
 from os import remove
 
+
 def exit_cli() -> None:
     """Closes EDU CLI."""
     print("Closing CLI")
     exit(0)
+
 
 def show_commands(*command) -> None:
     """Shows available commands. Pass a command as an argument for more details."""
@@ -29,6 +31,7 @@ editing unit data and turn it back into a text file.
             print(f" - {command.ljust(15)} {description}")
         print()
 
+
 def convert(*args) -> None:
     """Handles edu.txt and edu.db file conversions. Use help to learn more."""
 
@@ -50,10 +53,12 @@ def convert(*args) -> None:
     else:
         print("Command failed: bad arguments.")
 
+
 def init(db_name):
     """Initializes a database with no rows input yet."""
     db = initialize_database(db_name)
     db.close()
+
 
 COMMANDS = {
     "convert": convert,
@@ -61,6 +66,7 @@ COMMANDS = {
     "exit": exit_cli,
     "help": show_commands
 }
+
 
 def main() -> None:
     print("EDU Editor CLI")
