@@ -133,13 +133,11 @@ def open_database(db_name="test.db", unit_list=None) -> sqlite3.Connection:
                 insert_unit(conn, unit)
         return initialize_database(db_name)
 
-
 def _str_join(collection: list) -> str | None:
     try:
         return ", ".join(collection)
     except TypeError:
         return None
-
 
 def _dict_pair(dictionary: dict, index: int) -> str | None:
     item = tuple(dictionary.items())
@@ -147,7 +145,6 @@ def _dict_pair(dictionary: dict, index: int) -> str | None:
         return f"{item[index][0]} {item[index][1]}"
     except IndexError:
         return None
-
 
 def insert_unit(conn, unit):
     cursor = conn.cursor()

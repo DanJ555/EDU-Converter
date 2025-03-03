@@ -13,10 +13,27 @@ def show_commands() -> None:
         print(f" - {command.ljust(10)} {description}")
     print()
 
-def init_db(db_name):
-    pass
+def convert(*args) -> None:
+    """Handles .txt and .db file conversions."""
+    txt_name = None
+    db_name = None
+    file_type_err = False
+
+    for arg in args:
+        if ".txt" in arg:
+            txt_name = arg[:-4]
+        elif ".db" in arg:
+            db_name = arg[:-3]
+        else: file_type_err = True
+
+    if file_type_err:
+        print("Command convert failed: check your file type extensions.")
+    else:
+        pass
+
 
 COMMANDS = {
+    "convert": convert,
     "exit": exit_cli,
     "help": show_commands
 }
