@@ -1,3 +1,8 @@
+class TooManyOfficersError(Exception):
+	"""Is raised if more than 3 officer lines are read for a given unit."""
+	pass
+
+
 class Unit:
 
 	def __init__(self):
@@ -149,60 +154,60 @@ class Unit:
 		return f"Unit {self.type}"
 
 	def __str__(self):
-		lines = [f"type{' '*13}{self.type}"]
+		lines = [f"type{" "*13}{self.type}"]
 		if self.dictionary["name_1"] is None:
-			n = ''
+			n = ""
 		else:
 			n = self.dictionary["name_1"]
-		lines.append(f"dictionary{' '*7}{self.dictionary['name_0']}{' '*6}; {n}")
-		lines.append(f"category{' '*9}{self.category}")
-		lines.append(f"class{' '*12}{self.unit_class}")
-		lines.append(f"voice_type{' '*7}{self.voice_type}")
+		lines.append(f"dictionary{" "*7}{self.dictionary["name_0"]}{" "*6}; {n}")
+		lines.append(f"category{" "*9}{self.category}")
+		lines.append(f"class{" "*12}{self.unit_class}")
+		lines.append(f"voice_type{" "*7}{self.voice_type}")
 		if self.accent is not None:
-			lines.append(f"accent{' '*11}{self.accent}")
+			lines.append(f"accent{" "*11}{self.accent}")
 		if self.banner_faction is not None:
 			lines.append(f"banner faction   {self.banner_faction}")
 		if self.banner_unit is not None:
 			lines.append(f"banner unit      {self.banner_unit}")
 		if self.banner_holy is not None:
 			lines.append(f"banner holy      {self.banner_holy}")
-		soldier_stat = f"soldier{" "*10}{self.soldier['model']}, {self.soldier['men']}, {self.soldier['extras']}, {self.soldier['mass']}"
+		soldier_stat = f"soldier{" "*10}{self.soldier["model"]}, {self.soldier["men"]}, {self.soldier["extras"]}, {self.soldier["mass"]}"
 		if self.soldier["radius"]:
 			soldier_stat += f", {self.soldier["radius"]}"
 		if self.soldier["height"]:
 			soldier_stat += f", {self.soldier["height"]}"
 		lines.append(soldier_stat)
 		if self.ship is not None:
-			lines.append(f"ship{' '*13}{self.ship}")
+			lines.append(f"ship{" "*13}{self.ship}")
 		if self.officer_0 is not None:
-			lines.append(f"officer{' '*10}{self.officer_0}")
+			lines.append(f"officer{" "*10}{self.officer_0}")
 		if self.officer_1 is not None:
-			lines.append(f"officer{' '*10}{self.officer_1}")
+			lines.append(f"officer{" "*10}{self.officer_1}")
 		if self.officer_2 is not None:
-			lines.append(f"officer{' '*10}{self.officer_2}")
+			lines.append(f"officer{" "*10}{self.officer_2}")
 		if self.engine is not None:
-			lines.append(f"engine{' '*11}{self.engine}")
+			lines.append(f"engine{" "*11}{self.engine}")
 		if self.animal is not None:
-			lines.append(f"animal{' '*11}{self.animal}")
+			lines.append(f"animal{" "*11}{self.animal}")
 		if self.mounted_engine is not None:
 			lines.append(f"mounted_engine   {self.mounted_engine}")
 		if self.mount is not None:
-			lines.append(f"mount{' '*12}{self.mount}")
-		me = ''
+			lines.append(f"mount{" "*12}{self.mount}")
+		me = ""
 		for k in self.mount_effect.keys():
 			if self.mount_effect != {}:
 				me += f"{k} {self.mount_effect[k]}, "
-		if me != '':
+		if me != "":
 			lines.append(f"mount_effect     {me[:-2]}")
 		at = ", ".join(self.attributes)
 		lines.append(f"attributes       {at}")
 		if self.move_speed_mod:
 			lines.append(f"move_speed_mod   {self.move_speed_mod}")
-		fo = ''
+		fo = ""
 		for v in self.formation.values():
 			if v is not None:
 				fo += f"{v}, "
-		lines.append(f"formation{' '*8}{fo[:-2]}")
+		lines.append(f"formation{" "*8}{fo[:-2]}")
 		lines.append(f"stat_health      {self.stat_health[0]}, {self.stat_health[1]}")
 		i = 0
 		pre = ("pri", "sec", "ter")
@@ -212,7 +217,7 @@ class Unit:
 				(self.stat_tertiary, self.stat_tertiary_attribute)):
 			if stat[0]["attack"] is None:
 				break
-			sp = ''
+			sp = ""
 			for key in stat[0].keys():
 				if stat[0][key] is None:
 					sp += "no, "
@@ -220,24 +225,24 @@ class Unit:
 						sp = sp[:-4]
 				else:
 					sp += f"{stat[0][key]}, "
-			lines.append(f"stat_{pre[i]}{' '*9}{sp[:-2]}")
+			lines.append(f"stat_{pre[i]}{" "*9}{sp[:-2]}")
 			sp = ", ".join(stat[1])
 			lines.append(f"stat_{pre[i]}_attr    {sp}")
 			i += 1
-		pa = ''
+		pa = ""
 		for v in self.stat_primary_armour.values():
 			pa += f"{v}, "
 		lines.append(f"stat_pri_armour  {pa[:-2]}")
-		sa = ''
+		sa = ""
 		for v in self.stat_secondary_armour.values():
 			sa += f"{v}, "
 		lines.append(f"stat_sec_armour  {sa[:-2]}")
-		lines.append(f"stat_heat{' '*8}{self.stat_heat}")
-		stat_ground = ''
+		lines.append(f"stat_heat{" "*8}{self.stat_heat}")
+		stat_ground = ""
 		for v in self.stat_ground.values():
 			stat_ground += f"{v}, "
 		lines.append(f"stat_ground      {stat_ground[:-2]}")
-		sm = ''
+		sm = ""
 		for key in self.stat_mental.keys():
 			sm += f"{self.stat_mental[key]}, "
 			if key == "lock_morale" and self.stat_mental[key] is None:
@@ -246,60 +251,52 @@ class Unit:
 		lines.append(f"stat_charge_dist {self.stat_charge_dist}")
 		lines.append(f"stat_fire_delay  {self.stat_fire_delay}")
 		lines.append(f"stat_food        60, 300")  # Does nothing but will crash the game if it's missing.
-		sc = ''
+		sc = ""
 		for v in self.stat_cost.values():
 			sc += f"{v}, "
-		lines.append(f"stat_cost{' '*8}{sc[:-2]}")
+		lines.append(f"stat_cost{" "*8}{sc[:-2]}")
 		if self.stat_stl:
-			lines.append(f"stat_stl{' '*9}{self.stat_stl}")
-		ul = ''
+			lines.append(f"stat_stl{" "*9}{self.stat_stl}")
+		ul = ""
 		for v in self.armour_ug_levels.values():
 			if v is not None:
 				ul += f"{v}, "
 		lines.append(f"armour_ug_levels {ul[:-2]}")
-		um = ''
+		um = ""
 		for v in self.armour_ug_models.values():
 			if v is not None:
 				um += f"{v}, "
 		lines.append(f"armour_ug_models {um[:-2]}")
-		o = ''
+		o = ""
 		for v in self.ownership:
 			o += f"{v}, "
-		lines.append(f"ownership{' '*8}{o[:-2]}")
+		lines.append(f"ownership{" "*8}{o[:-2]}")
 		for era in self.eras.items():
 			if era[1] is not None:
-				e = ''
+				e = ""
 				for v in era[1]:
 					e += f"{v}, "
-				lines.append(f"{era[0]}{' '*12}{e[:-2]}")
+				lines.append(f"{era[0]}{" "*12}{e[:-2]}")
 		if self.recruit_priority_offset is not None:
 			lines.append(f"recruit_priority_offset    {self.recruit_priority_offset}")
-		r = ''
+		r = ""
 		for line in lines:
 			r += (line + "\n")
 		return r
-
-	def disable_secondary_weapon(self):
-		self.stat_secondary["attack"] = 0
-		self.stat_secondary["charge_bonus"] = 0
-		self.stat_secondary["missile"] = None
-		self.stat_secondary["range"] = 0
-		self.stat_secondary["ammunition"] = 0
-		self.stat_secondary["weapon_type"] = None
 
 	def fill_from_list(self, stat_list):
 		self.raw = stat_list
 		for line in stat_list:
 			match line:
 				case ["type", *unit_type]:
-					name = ''
+					name = ""
 					for word in unit_type:
 						name += f"{word} "
 					self.type = name[:-1]
 				case (["dictionary", *dictionary]):
 					self.dictionary["name_0"] = dictionary[0]
 					try:
-						name = ''
+						name = ""
 						for word in dictionary[2:]:
 							name += f"{word} "
 						self.dictionary["name_1"] = name[:-1]
@@ -320,7 +317,6 @@ class Unit:
 				case ["banner", "holy", banner]:
 					self.banner_holy = banner
 				case ["soldier", *soldier_stat]:
-					# print(soldier_stat)
 					self.soldier["model"] = soldier_stat[0]
 					self.soldier["men"] = soldier_stat[1]
 					self.soldier["extras"] = soldier_stat[2]
@@ -371,7 +367,6 @@ class Unit:
 				case ["move_speed_mod", mod]:
 					self.move_speed_mod = mod
 				case ["formation", *formation_stats]:
-					# print(self.type)
 					self.formation["close_x"] = formation_stats[0]
 					self.formation["close_y"] = formation_stats[1]
 					self.formation["loose_x"] = formation_stats[2]
@@ -499,13 +494,8 @@ class Unit:
 					self.recruit_priority_offset = offset
 
 
-class TooManyOfficersError(Exception):
-	"""Is raised if more than 3 officer lines are read for a given unit."""
-	pass
-
-
-def create_unit_list(file="export_descr_unit.txt") -> list[Unit]:
-	edu = open(file, encoding="ISO-8859-1")
+def create_units_from_txt(file="export_descr_unit.txt") -> list[Unit]:
+	edu = open(file, encoding="UTF-8")
 	lines = edu.readlines()
 	edu.close()
 	# Makes instances of missing spaces between commas separated
@@ -530,7 +520,7 @@ def create_unit_list(file="export_descr_unit.txt") -> list[Unit]:
 			for line in lines[interval[0]:interval[1]]:
 				line = line.split()
 				for index, word in enumerate(line):
-					if word[-1] == ',':
+					if word[-1] == ",":
 						line[index] = word[:-1]
 				unit.append(line)
 			raw_units.append(unit)
@@ -540,14 +530,16 @@ def create_unit_list(file="export_descr_unit.txt") -> list[Unit]:
 		units.append(unit)
 	return units
 
+def create_edu_file(unit_list, file_name="Modified_EDU.txt"):
+	with open(file_name, "w") as mod_edu:
+		for unit in unit_list:
+			mod_edu.write(str(unit))
+			mod_edu.write(" \n \n")
+
 
 def main():
-	units = create_unit_list()
-	with open("Modified_EDU.txt", "w") as mod:
-		for unit in units:
-			mod.write(str(unit))
-			mod.write(" \n \n")
-			print(unit.attributes)
+	unit_list = create_units_from_txt()
+	create_edu_file(unit_list)
 
 
 if __name__ == "__main__":

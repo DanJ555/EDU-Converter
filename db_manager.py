@@ -1,11 +1,9 @@
 import sqlite3
 
-import uniteditor
-from uniteditor import *
+from unit_type import *
 
 
-# Function to initialize the SQLite database
-def initialize_database(db_name="export_descr_unit.db"):
+def initialize_database(db_name="export_descr_unit.db") -> sqlite3.Connection:
     conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
 
@@ -122,17 +120,28 @@ def initialize_database(db_name="export_descr_unit.db"):
     """)
 
     conn.commit()
-    conn.close()
+    return conn
+
+def open_database(db_name="test.db", unit_list=None) -> sqlite3.Connection:
+    try:
+        open(db_name)
+        return sqlite3.connect(db_name)
+    except FileNotFoundError:
+        conn = initialize_database(db_name)
+        if unit_list:
+            for unit in unit_list:
+                insert_unit(conn, unit)
+        return initialize_database(db_name)
 
 
-def str_join(collection: list) -> str | None:
+def _str_join(collection: list) -> str | None:
     try:
         return ", ".join(collection)
     except TypeError:
         return None
 
 
-def dict_pair(dictionary: dict, index: int) -> str | None:
+def _dict_pair(dictionary: dict, index: int) -> str | None:
     item = tuple(dictionary.items())
     try:
         return f"{item[index][0]} {item[index][1]}"
@@ -140,11 +149,9 @@ def dict_pair(dictionary: dict, index: int) -> str | None:
         return None
 
 
-# Function to insert unit data into the database
 def insert_unit(conn, unit):
     cursor = conn.cursor()
 
-    # Insert into units table
     cursor.execute("""
         INSERT INTO units (
             dictionary, type, name, category, class, voice_type, accent, banner_faction, 
@@ -164,7 +171,7 @@ def insert_unit(conn, unit):
         unit.banner_faction,
         unit.banner_holy,
         unit.banner_unit,
-        ", ".join(unit.attributes),  # Convert attributes dictionary to a comma-separated string
+        ", ".join(unit.attributes),
         unit.stat_cost["turns"],
         unit.stat_cost["construct"],
         unit.stat_cost["upkeep"],
@@ -174,16 +181,15 @@ def insert_unit(conn, unit):
         unit.stat_cost["custom_softcap"],
         unit.stat_cost["custom_penalty"],
         unit.stat_stl,
-        ", ".join(unit.ownership),  # Convert ownership list to a comma-separated string
-        str_join(unit.eras["era 0"]),
-        str_join(unit.eras["era 1"]),
-        str_join(unit.eras["era 2"]),
+        ", ".join(unit.ownership),
+        _str_join(unit.eras["era 0"]),
+        _str_join(unit.eras["era 1"]),
+        _str_join(unit.eras["era 2"]),
         unit.recruit_priority_offset
     ))
 
-    unit_id = cursor.lastrowid  # Get the ID of the inserted unit
+    unit_id = cursor.lastrowid
 
-    # Insert into formations table
     cursor.execute("""
         INSERT INTO formations (
             unit_id, dictionary, soldier_model, soldier_count, soldier_extras,
@@ -213,9 +219,9 @@ def insert_unit(conn, unit):
         unit.animal,
         unit.mounted_engine,
         unit.mount,
-        dict_pair(unit.mount_effect, 0),
-        dict_pair(unit.mount_effect, 1),
-        dict_pair(unit.mount_effect, 2),
+        _dict_pair(unit.mount_effect, 0),
+        _dict_pair(unit.mount_effect, 1),
+        _dict_pair(unit.mount_effect, 2),
         unit.formation["close_x"],
         unit.formation["close_y"],
         unit.formation["loose_x"],
@@ -239,13 +245,12 @@ def insert_unit(conn, unit):
         unit.move_speed_mod
     ))
 
-    # Insert primary, secondary, and tertiary weapons
     for weapon_category, stat in [
         ("primary", unit.stat_primary),
         ("secondary", unit.stat_secondary),
         ("tertiary", unit.stat_tertiary)
     ]:
-        if stat["attack"] is not None:  # Only insert if the weapon exists
+        if stat["attack"] is not None:
             cursor.execute("""
                 INSERT INTO weapons (
                     unit_id, dictionary, weapon_category, attack, charge_bonus, missile,
@@ -268,10 +273,9 @@ def insert_unit(conn, unit):
                 stat["musket_shot_set"],
                 stat["attack_delay"],
                 stat["scfim"],
-                ", ".join(unit.stat_primary_attribute)  # Convert dict to string for now
+                ", ".join(unit.stat_primary_attribute)
             ))
 
-    # Insert armour data
     cursor.execute("""
         INSERT INTO armour (
             unit_id, dictionary, primary_armour, primary_defense_skill, primary_shield, primary_material, 
@@ -452,19 +456,16 @@ def extract_units(conn) -> list[Unit]:
     return units
 
 
-if __name__ == "__main__":
-    initialize_database()
+def main() -> None:
+    unit_list: list[Unit] = create_units_from_txt(file="export_descr_unit.txt")
+    conn = open_database("test.db", unit_list)
+    db_unit_list = extract_units(conn)
 
-    units: list[Unit] = uniteditor.create_unit_list(file="export_descr_unit.txt")  # Replace with real data
-    conn = sqlite3.connect("export_descr_unit.db")
-
-    """for unit in units:
-        insert_unit(conn, unit)"""
-
-    units_list = extract_units(conn)
-    for unit in units_list:
+    for unit in db_unit_list:
         print(str(unit))
-        pass
 
     conn.close()
-    print("Database populated successfully!")
+
+
+if __name__ == "__main__":
+    main()
