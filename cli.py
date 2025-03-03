@@ -49,7 +49,7 @@ def convert(*args) -> None:
         db_unit_list = extract_units(db)
         create_edu_file(db_unit_list, args[1])
         db.close()
-        print(f"{args[1]} successfully converted to {args[0]}")
+        print(f"{args[0]} successfully converted to {args[1]}")
     else:
         print("Command failed: bad arguments.")
 

@@ -495,9 +495,14 @@ class Unit:
 
 
 def create_units_from_txt(file="export_descr_unit.txt") -> list[Unit]:
-	edu = open(file)
-	lines = edu.readlines()
-	edu.close()
+	try:
+		edu = open(file)
+		lines = edu.readlines()
+	except UnicodeDecodeError:
+		edu = open(file, encoding="ISO-8859-1")
+		lines = edu.readlines()
+	finally:
+		edu.close()
 	# Makes instances of missing spaces between commas separated
 	# values not crash the program.
 	unit_starts = []
