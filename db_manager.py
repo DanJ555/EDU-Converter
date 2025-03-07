@@ -1,5 +1,5 @@
 import sqlite3
-
+import os
 from unit_type import *
 
 
@@ -124,15 +124,14 @@ def initialize_database(db_name="export_descr_unit.db") -> sqlite3.Connection:
 
 
 def open_database(db_name="export_descr_unit.db", unit_list=None) -> sqlite3.Connection:
-    try:
-        open(db_name)
+    if os.path.exists(db_name):
         return sqlite3.connect(db_name)
-    except FileNotFoundError:
-        conn = initialize_database(db_name)
-        if unit_list:
-            for unit in unit_list:
-                insert_unit(conn, unit)
-        return conn
+        
+    conn = initialize_database(db_name)
+    if unit_list:
+        for unit in unit_list:
+            insert_unit(conn, unit)
+    return conn
 
 
 def _str_join(collection: list) -> str | None:
