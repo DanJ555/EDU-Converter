@@ -123,7 +123,7 @@ def initialize_database(db_name="export_descr_unit.db") -> sqlite3.Connection:
     return conn
 
 
-def open_database(db_name="export_descr_unit.db", unit_list=None) -> sqlite3.Connection:
+def open_database(db_name: str="export_descr_unit.db", unit_list: list[Unit]=None) -> sqlite3.Connection:
     if os.path.exists(db_name):
         return sqlite3.connect(db_name)
         
