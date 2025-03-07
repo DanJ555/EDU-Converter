@@ -132,7 +132,7 @@ def open_database(db_name="export_descr_unit.db", unit_list=None) -> sqlite3.Con
         if unit_list:
             for unit in unit_list:
                 insert_unit(conn, unit)
-        return initialize_database(db_name)
+        return conn
 
 
 def _str_join(collection: list) -> str | None:
