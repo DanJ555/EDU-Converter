@@ -54,7 +54,7 @@ def convert(*args) -> None:
         print("Command failed: bad arguments.")
 
 
-def init(db_name):
+def init(db_name) -> None:
     """Initializes a database with no rows input yet."""
     db = initialize_database(db_name)
     db.close()
