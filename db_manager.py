@@ -149,7 +149,7 @@ def _dict_pair(dictionary: dict, index: int) -> str | None:
         return None
 
 
-def insert_unit(conn, unit):
+def insert_unit(conn, unit) -> None:
     cursor = conn.cursor()
 
     cursor.execute("""
