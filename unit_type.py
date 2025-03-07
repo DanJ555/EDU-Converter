@@ -5,7 +5,7 @@ class TooManyOfficersError(Exception):
 
 class Unit:
 
-	def __init__(self):
+	def __init__(self) -> None:
 		self.type: str = None
 		self.dictionary: dict[str: str] = {
 			"name_0": None,
@@ -150,10 +150,10 @@ class Unit:
 		self.recruit_priority_offset: float = None
 		self.raw = None
 
-	def __repr__(self):
+	def __repr__(self) -> str:
 		return f"Unit {self.type}"
 
-	def __str__(self):
+	def __str__(self) -> str:
 		lines = [f"type{" "*13}{self.type}"]
 		if self.dictionary["name_1"] is None:
 			name = ""
@@ -284,7 +284,7 @@ class Unit:
 			final += (line + "\n")
 		return final
 
-	def fill_from_list(self, stat_list):
+	def fill_from_list(self, stat_list) -> None:
 		self.raw = stat_list
 		for line in stat_list:
 			match line:
@@ -536,14 +536,14 @@ def create_units_from_txt(file="export_descr_unit.txt") -> list[Unit]:
 	return units
 
 
-def create_edu_file(unit_list, file_name="Modified_EDU.txt"):
+def create_edu_file(unit_list, file_name="Modified_EDU.txt") -> None:
 	with open(file_name, "w") as mod_edu:
 		for unit in unit_list:
 			mod_edu.write(str(unit))
 			mod_edu.write(" \n \n")
 
 
-def main():
+def main() -> None:
 	unit_list = create_units_from_txt()
 	create_edu_file(unit_list)
 
